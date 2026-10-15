@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  devIndicators: false,
+  serverExternalPackages: ["pg", "nodemailer", "ws"],
   turbopack: {
     rules: {
       "*.css": {
@@ -11,6 +10,18 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  async rewrites() {
+    return [
+      { source: "/docs", destination: "/docs/index.html" },
+      { source: "/docs/", destination: "/docs/index.html" },
+    ];
+  },
+  async redirects() {
+    return [
+      { source: "/app/tools", destination: "/app/apps", permanent: false },
+      { source: "/app/calls/:campaignId", destination: "/app/campaigns/:campaignId", permanent: false },
+    ];
   },
 };
 

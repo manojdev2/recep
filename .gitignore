@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# recovery reference material
+/_reference
+/.playwright-mcp
+/data/*.json
+/data/.credential-key
+!.env.example

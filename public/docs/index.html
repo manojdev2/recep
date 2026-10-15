@@ -1,0 +1,1460 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Overview · Reception AI Docs</title>
+    <meta
+      name="description"
+      content="User guide, architecture, environment, install, and deploy notes for Reception AI — the AI receptionist for clinics, salons, restaurants, and trades."
+    />
+    <meta name="theme-color" content="#181b2d" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="/docs/styles.css?v=5" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("aether-theme");
+          if (t !== "light" && t !== "dark" && t !== "system") t = "dark";
+          var light = t === "light" || (t !== "dark" && window.matchMedia("(prefers-color-scheme: light)").matches);
+          var r = light ? "light" : "dark";
+          var el = document.documentElement;
+          el.classList.remove("light", "dark");
+          el.classList.add(r);
+          el.style.colorScheme = r;
+          el.setAttribute("data-theme", t);
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute("content", r === "light" ? "#f8f9fd" : "#181b2d");
+        } catch (e) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="wordmark" href="/" aria-label="Reception AI home">
+          <svg class="wordmark-mark" viewBox="0 0 40 40" aria-hidden="true">
+            <rect width="40" height="40" rx="13" fill="#6050cf" />
+            <path
+              d="M11 29V12a2 2 0 0 1 2-2h8a7 7 0 0 1 0 14h-4l-6 5Z"
+              fill="none"
+              stroke="#fff"
+              stroke-width="3"
+              stroke-linejoin="round"
+            />
+            <path d="m21 24 7 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+            <path d="M18 16v3M22 15v5" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+            <circle cx="30.5" cy="9.5" r="3" fill="#bbf3d5" />
+          </svg>
+          <span class="wordmark-name">Reception AI</span>
+        </a>
+        <nav class="top-links" aria-label="Site">
+          <a href="/#features">Features</a>
+          <a href="/#integrations">Integrations</a>
+          <a href="/#demo">Try it</a>
+          <a href="/#pricing">Pricing</a>
+          <span class="crumb" id="crumb">Overview</span>
+        </nav>
+        <div class="top-actions">
+          <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch to light mode">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" />
+            </svg>
+          </button>
+          <a class="btn btn-ghost" href="/login">Sign in</a>
+          <a class="btn btn-primary" href="/app">My home</a>
+          <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="drawer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+            <span class="sr-only">Open menu</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="drawer" id="drawer">
+      <div class="drawer-backdrop"></div>
+      <div class="drawer-panel">
+        <button class="btn btn-ghost" id="drawer-close" type="button">Close</button>
+        <nav class="sidebar-nav" aria-label="Docs">
+          <p class="nav-group">Start</p>
+          <a href="#overview" data-nav="overview">Overview</a>
+          <a href="#guide" data-nav="guide">User guide</a>
+          <a href="#workspace" data-nav="workspace">Workspace</a>
+          <p class="nav-group">Build</p>
+          <a href="#architecture" data-nav="architecture">Architecture</a>
+          <a href="#install" data-nav="install">Install</a>
+          <a href="#env" data-nav="env">Environment</a>
+          <a href="#deploy" data-nav="deploy">Deploy</a>
+          <p class="nav-group">Operate</p>
+          <a href="#api" data-nav="api">HTTP API</a>
+          <a href="#admin" data-nav="admin">Admin</a>
+          <a href="#troubleshoot" data-nav="troubleshoot">Troubleshooting</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input id="search" type="search" placeholder="Search docs  /" autocomplete="off" />
+          <div class="search-hits" id="search-hits"></div>
+        </div>
+        <nav class="sidebar-nav" aria-label="Docs">
+          <p class="nav-group">Start</p>
+          <a href="#overview" data-nav="overview">Overview</a>
+          <a href="#guide" data-nav="guide">User guide</a>
+          <a href="#workspace" data-nav="workspace">Workspace</a>
+          <p class="nav-group">Build</p>
+          <a href="#architecture" data-nav="architecture">Architecture</a>
+          <a href="#install" data-nav="install">Install</a>
+          <a href="#env" data-nav="env">Environment</a>
+          <a href="#deploy" data-nav="deploy">Deploy</a>
+          <p class="nav-group">Operate</p>
+          <a href="#api" data-nav="api">HTTP API</a>
+          <a href="#admin" data-nav="admin">Admin</a>
+          <a href="#troubleshoot" data-nav="troubleshoot">Troubleshooting</a>
+        </nav>
+      </aside>
+
+      <main id="content">
+        <article class="page" data-page="overview">
+          <p class="kicker">Documentation</p>
+          <h1>The front desk, written down.</h1>
+          <p class="lede">
+            Reception AI answers the phone, books the appointment, and writes down what happened — in your words, on your
+            number. These pages cover the product for operators and the system for the people who run it.
+          </p>
+
+          <div class="stat-row">
+            <div class="stat"><b>24/7</b><span>Answers when you cannot</span></div>
+            <div class="stat"><b>18</b><span>Trade templates</span></div>
+            <div class="stat"><b>15 min</b><span>Talk time on the free plan</span></div>
+            <div class="stat"><b>2,000</b><span>Minutes on Scale</span></div>
+          </div>
+
+          <div class="cards three">
+            <a class="card" href="#guide" data-nav="guide">
+              <h3>I run the business</h3>
+              <p>Pick a trade, teach it your hours and prices, hear it, then put it on the line you already advertise.</p>
+            </a>
+            <a class="card" href="#install" data-nav="install">
+              <h3>I run the software</h3>
+              <p>Install locally with nothing but Node, then add keys, a persistent disk, and a public URL before real calls.</p>
+            </a>
+            <a class="card" href="#architecture" data-nav="architecture">
+              <h3>I need the map</h3>
+              <p>One process holds the site, the admin panel, and the live call relay. Serverless cannot do that.</p>
+            </a>
+          </div>
+
+          <h2 id="what-it-is">What Reception AI is</h2>
+          <p>
+            Reception AI is an AI receptionist for clinics, salons, restaurants, and trades. A caller rings the number they already
+            know. The receptionist answers in a chosen voice, stays inside the facts you uploaded, books or takes a message, and
+            hands over when a person should take it.
+          </p>
+          <p>
+            The workspace at <a href="/app"><strong>/app</strong></a> is where you build that receptionist. The public site sells
+            it. The admin panel at <a href="/admin"><strong>/admin</strong></a> is for the people who operate the
+            platform — plans, tenants, keys, and health.
+          </p>
+
+          <h2 id="how-to-read">How to read these docs</h2>
+          <ul>
+            <li><strong>User guide</strong> — the path a new workspace follows to a live line.</li>
+            <li><strong>Workspace</strong> — every screen after you sign in, and what it is for.</li>
+            <li><strong>Architecture</strong> — why calls, jobs, and auth are shaped this way.</li>
+            <li><strong>Install, environment, deploy</strong> — from <code class="k">npm run dev</code> to a public origin that carriers can reach.</li>
+            <li><strong>HTTP API, admin, troubleshooting</strong> — webhooks, health, and the failures that actually happen.</li>
+          </ul>
+
+          <h2 id="plans">Plans the product enforces</h2>
+          <p>
+            Marketing numbers and metering come from the same plan table. Studio is free. Scale is $89 per seat per
+            month. Enterprise is custom and unlimited.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Plan</th>
+                  <th>Minutes / month</th>
+                  <th>Live receptionists</th>
+                  <th>Numbers</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Studio</td>
+                  <td>15</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>Free</td>
+                </tr>
+                <tr>
+                  <td>Scale</td>
+                  <td>2,000</td>
+                  <td>25</td>
+                  <td>25</td>
+                  <td>$89 / seat / month</td>
+                </tr>
+                <tr>
+                  <td>Enterprise</td>
+                  <td>Unlimited</td>
+                  <td>Unlimited</td>
+                  <td>Unlimited</td>
+                  <td>Custom</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Usage is counted in one currency: voice-equivalent minutes. A live minute costs 1. A turn on the fallback
+            phone path costs 0.25. A text exchange costs 0.025. Admins can change those rates without a deploy.
+          </p>
+        </article>
+
+        <article class="page" data-page="guide">
+          <p class="kicker">Tutorial</p>
+          <h1>From empty workspace to a live line</h1>
+          <p class="lede">
+            You do not compose or deploy anything. You pick the kind of business you run, tell the receptionist the facts, and
+            put it on the phone. The checklist on the dashboard is derived from what actually exists — it cannot tell
+            you to do a step you already finished.
+          </p>
+
+          <nav class="toc-mobile">
+            <a href="#create-account">Create an account</a>
+            <a href="#pick-trade">Pick your trade</a>
+            <a href="#teach">Tell it about you</a>
+            <a href="#hours">Set hours</a>
+            <a href="#hear-it">Hear it</a>
+            <a href="#number">Connect a number</a>
+            <a href="#go-live">Take it live</a>
+          </nav>
+
+          <h2 id="create-account">1. Create an account</h2>
+          <p>
+            Open <a href="/login"><strong>/login</strong></a>. Sign in or create an account with email and password
+            (eight characters minimum). New accounts can be closed from the admin panel without taking the product down.
+          </p>
+          <p>After sign-in you land in the workspace. If you are already signed in, <code class="k">/login</code> sends you to <code class="k">/app</code>.</p>
+
+          <h2 id="pick-trade">2. Pick your trade</h2>
+          <p>
+            Go to <strong>Agents</strong> and start from a template: clinic, salon, restaurant, workshop, support, and
+            the rest of the catalog. The first version already knows what those callers usually ask. You can change
+            every word.
+          </p>
+          <div class="callout">
+            <span class="note-title">Why a template</span>
+            <p>A blank receptionist answers with nothing to stand on. A trade template gives you a working first draft you can hear the same day.</p>
+          </div>
+
+          <h2 id="teach">3. Tell it what it needs to know</h2>
+          <p>
+            Open <strong>Knowledge</strong>. Upload a PDF, a sheet, or paste opening hours, prices, and the things it
+            must never say. The receptionist only answers from what you give it. Sample documents that ship with a template do
+            not count as “you taught it” — the checklist waits for a real upload.
+          </p>
+
+          <h2 id="hours">4. Set opening hours</h2>
+          <p>
+            <strong>Settings → Hours</strong>, in your timezone. Booking offers come from this calendar. Without hours
+            and a timezone, the receptionist cannot honestly offer a slot.
+          </p>
+
+          <h2 id="hear-it">5. Hear it yourself</h2>
+          <p>
+            Open the receptionist and talk to it in the workspace before anyone else does. Change the prompt, the voice, or the
+            tools if a sentence sounds wrong. The landing page demo (“Maya” at Northstar Support) is the same idea for
+            visitors who are not signed in.
+          </p>
+
+          <h2 id="number">6. Connect a phone number</h2>
+          <p>
+            <strong>Numbers</strong> is where you import a number you already own (Twilio, Plivo, and other carriers the
+            catalog lists) and point it at this receptionist. Simulator numbers in the product cannot receive a real call —
+            they exist so you can click around without a carrier.
+          </p>
+          <p>Point the carrier at your public origin:</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Carrier</th>
+                  <th>Inbound URL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Twilio</td>
+                  <td>https://your-app/api/voice/inbound</td>
+                </tr>
+                <tr>
+                  <td>Plivo</td>
+                  <td>https://your-app/api/voice/plivo</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="carrier-capabilities">What each kind of line can do</h3>
+          <p>
+            Importing a number works for every carrier below. Answering and placing calls does not: each needs
+            carrier-specific handling, and that exists for some carriers and not others. This is what is built today, and
+            it is enforced in the product — a call that cannot leave from a line is refused with the reason, not offered
+            and then failed.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Line</th>
+                  <th>Answers calls</th>
+                  <th>Places calls</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Twilio</td>
+                  <td>Yes — live conversation</td>
+                  <td>Yes — live conversation</td>
+                </tr>
+                <tr>
+                  <td>Plivo</td>
+                  <td>Yes — live conversation</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>SIP trunk</td>
+                  <td>Yes, if your trunk sends calls to OpenAI's SIP endpoint</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>Vonage</td>
+                  <td>No — import and verification only</td>
+                  <td>Limited — plays your greeting as a one-way announcement</td>
+                </tr>
+                <tr>
+                  <td>Telnyx</td>
+                  <td>No — import and verification only</td>
+                  <td>Limited — placed on your Call Control connection, which then decides what happens</td>
+                </tr>
+                <tr>
+                  <td>Test number or address</td>
+                  <td>No — practice only</td>
+                  <td>No</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Outbound minutes are billed at the length the carrier reports. Twilio is polled for how each call ended, and a
+            call that rings out unanswered costs nothing. The carriers that cannot be polled are metered at one minute per
+            call. If a carrier rejects a call or times out, it is recorded as failed — never as a completed call.
+          </p>
+
+          <h2 id="go-live">7. Take it live</h2>
+          <p>
+            Publish the receptionist and leave the number assigned. You can pause it again at any time. The answering half of
+            the checklist is now done. Contacts, apps, and campaigns are optional — a clinic that only answers does not
+            need them.
+          </p>
+
+          <h2 id="optional-outbound">If you also want it to call out</h2>
+          <div class="steps">
+            <div class="step">
+              <div class="step-n">A</div>
+              <div>
+                <h3>Import contacts</h3>
+                <p>A CSV of names and numbers is enough. Sample contacts that ship with a workspace do not tick this step.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-n">B</div>
+              <div>
+                <h3>Connect tools</h3>
+                <p>Calendar, CRM, sheets, webhooks — only the apps that are actually wired change runtime behavior.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-n">C</div>
+              <div>
+                <h3>Run a campaign</h3>
+                <p>Give it a list and a reason to call. Background jobs walk the list. Outbound can be switched off for the whole platform.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="page" data-page="workspace">
+          <p class="kicker">How-to</p>
+          <h1>The workspace, screen by screen</h1>
+          <p class="lede">
+            After sign-in, everything a workspace needs lives under <code class="k">/app</code>. The sidebar is grouped
+            the way the work is grouped: build the receptionist, watch what happened, then optionally call out.
+          </p>
+
+          <h2 id="build-group">Build</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Screen</th>
+                  <th>Path</th>
+                  <th>What you do there</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Dashboard</td>
+                  <td>/app</td>
+                  <td>Next step, and whether the line is already live.</td>
+                </tr>
+                <tr>
+                  <td>Agents</td>
+                  <td>/app/agents</td>
+                  <td>Create, edit, publish. Prompt, tools, workflow, voice.</td>
+                </tr>
+                <tr>
+                  <td>Knowledge</td>
+                  <td>/app/knowledge</td>
+                  <td>Documents the receptionist may answer from. Full-text search on the server.</td>
+                </tr>
+                <tr>
+                  <td>Voices</td>
+                  <td>/app/voices</td>
+                  <td>Pick a voice from the catalog. Several names share a sound — do not count names as unique voices.</td>
+                </tr>
+                <tr>
+                  <td>Numbers</td>
+                  <td>/app/phone</td>
+                  <td>Import a carrier number and assign it to a receptionist.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="activity-group">Activity</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Screen</th>
+                  <th>Path</th>
+                  <th>What you do there</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Inbox</td>
+                  <td>/app/conversations</td>
+                  <td>Chat and widget threads.</td>
+                </tr>
+                <tr>
+                  <td>Calls</td>
+                  <td>/app/calls</td>
+                  <td>Phone history and campaign call lists.</td>
+                </tr>
+                <tr>
+                  <td>Results</td>
+                  <td>/app/results</td>
+                  <td>Bookings, tickets, leads, and other outcomes.</td>
+                </tr>
+                <tr>
+                  <td>This week</td>
+                  <td>/app/analytics</td>
+                  <td>A weekly read of volume and outcomes.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="outreach-group">Outreach and tools</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Screen</th>
+                  <th>Path</th>
+                  <th>What you do there</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Contacts</td>
+                  <td>/app/contacts</td>
+                  <td>People a campaign can ring.</td>
+                </tr>
+                <tr>
+                  <td>Campaigns</td>
+                  <td>/app/campaigns</td>
+                  <td>Outbound lists and progress.</td>
+                </tr>
+                <tr>
+                  <td>Apps</td>
+                  <td>/app/apps</td>
+                  <td>Connectors. Gallery is larger than the set that is actually wired.</td>
+                </tr>
+                <tr>
+                  <td>Tools</td>
+                  <td>/app/tools/…</td>
+                  <td>Widget, webhooks, forms, CRM, appointments, messaging, sheets.</td>
+                </tr>
+                <tr>
+                  <td>Settings</td>
+                  <td>/app/settings</td>
+                  <td>Workspace, hours, and a read-only billing view. Plan changes are admin-side.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="public-surfaces">Public surfaces</h2>
+          <ul>
+            <li><strong>/w/&lt;agentId&gt;</strong> — embeddable web widget. The demo receptionist is <code class="k">/w/demo</code>.</li>
+            <li><strong>/f/&lt;formId&gt;</strong> — a public form you can send to a caller or put on a site.</li>
+          </ul>
+          <p>The widget can be switched off for the whole platform with the widget feature flag.</p>
+
+          <h2 id="guardrails">Guardrails worth knowing</h2>
+          <ul>
+            <li>The receptionist should only answer from knowledge you provided.</li>
+            <li>Transfer to a person is a first-class tool, not a failure.</li>
+            <li>Plan limits are checked before model work. Metering errors fail open so a billing bug cannot drop a live line.</li>
+            <li>Simulator numbers never become a real inbound path.</li>
+          </ul>
+        </article>
+
+        <article class="page" data-page="architecture">
+          <p class="kicker">Explanation</p>
+          <h1>One process, two sockets, a data file</h1>
+          <p class="lede">
+            The product looks like a website. The hard part is a phone call: the process must hold a WebSocket to the
+            carrier and another to the realtime model for as long as the caller is talking. A function that dies after
+            a request cannot do that, so the app ships with its own small server.
+          </p>
+
+          <h2 id="stack">Stack</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Layer</th>
+                  <th>Choice</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>App</td>
+                  <td>Next.js 16 (App Router), React 19, started by <code class="k">server.mjs</code></td>
+                </tr>
+                <tr>
+                  <td>UI</td>
+                  <td>Tailwind v4, Radix, TanStack Query, Manrope + IBM Plex Mono</td>
+                </tr>
+                <tr>
+                  <td>Auth</td>
+                  <td>Built in at <code class="k">/api/auth/*</code>: email and password (scrypt), optional Google sign-in, a 7-day session cookie</td>
+                </tr>
+                <tr>
+                  <td>Data</td>
+                  <td>Postgres when <code class="k">DATABASE_URL</code> is set (one JSONB row per collection); otherwise <code class="k">data/db.json</code>. Held in memory, written on change</td>
+                </tr>
+                <tr>
+                  <td>Product API</td>
+                  <td>Typed server functions at <code class="k">POST /api/fn/:group/:name</code>, one session check for all of them</td>
+                </tr>
+                <tr>
+                  <td>Live calls</td>
+                  <td>OpenAI Realtime over a μ-law pass-through relay in <code class="k">server.mjs</code></td>
+                </tr>
+                <tr>
+                  <td>Preview / fallback</td>
+                  <td>Turn-based path and browser chat (xAI key, or OpenAI when xAI is absent)</td>
+                </tr>
+                <tr>
+                  <td>Jobs</td>
+                  <td>A queue in the same store, drained every minute in-process</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="call-path">What happens on a live call</h2>
+          <div class="flow">
+            <div class="flow-row">
+              <span class="pill">Caller</span><span class="arrow">→</span>
+              <span class="pill">Twilio / Plivo</span><span class="arrow">→</span>
+              <span class="pill">POST webhook</span>
+            </div>
+            <div class="flow-row">
+              <span class="pill">Stream XML</span><span class="arrow">→</span>
+              <span class="pill">wss://APP_URL/api/voice/stream</span>
+            </div>
+            <div class="flow-row">
+              <span class="pill">Load agent</span><span class="arrow">→</span>
+              <span class="pill">OpenAI Realtime</span><span class="arrow">→</span>
+              <span class="pill">Tools / outcomes</span>
+            </div>
+            <div class="flow-row">
+              <span class="pill">Transcript</span><span class="arrow">→</span>
+              <span class="pill">Usage row</span><span class="arrow">→</span>
+              <span class="pill">Call record</span>
+            </div>
+          </div>
+          <p>
+            Audio is copied as μ-law in both directions — the model is asked for <code class="k">audio/pcmu</code>, so
+            nothing is transcoded. The relay does not touch the data file itself: it asks the app for the call's
+            prompt, voice, and tools, forwards each tool call back to the app, and hands over the transcript when the
+            caller hangs up. Those internal routes are guarded by a secret the server generates at start.
+          </p>
+          <p>
+            If the relay is not running (plain <code class="k">next dev</code>), there is no OpenAI key, or
+            <code class="k">APP_URL</code> is still localhost, Twilio falls back to a turn-based loop: speak, gather,
+            think, speak again. That path is slower and not interruptible. It is a safety net, not the product. Plivo
+            has no fallback and politely declines the call.
+          </p>
+
+          <h2 id="auth-path">Auth</h2>
+          <p>
+            Accounts live in the same store as the rest of the product. Passwords are hashed with scrypt; a session is
+            an opaque token in the <code class="k">ra_session</code> cookie and lasts seven days. “Continue with Google”
+            appears when a Google sign-in client is configured. Without <code class="k">ADMIN_EMAILS</code>, the first
+            account created becomes the platform's super-admin; with it, only listed and confirmed addresses do.
+          </p>
+          <p>
+            Every server function declares its access — public, signed-in, admin, or super-admin — and scopes rows to
+            the signed-in user. Admin functions answer “Not found” to everyone else.
+          </p>
+
+          <h2 id="jobs-path">Jobs</h2>
+          <p>
+            Campaign ticks, webhook deliveries, sheet appends, and call reconcile work sit in a <code class="k">jobs</code>
+            collection. The process drains it every minute, and right after something is queued.
+            <code class="k">POST /api/jobs/run</code> is the same drain, protected by <code class="k">JOBS_SECRET</code>
+            in production.
+          </p>
+          <p>Handlers must be idempotent. The queue is at-least-once, with exponential back-off and five attempts.</p>
+
+          <h2 id="settings-path">Settings</h2>
+          <p>
+            Most keys can live in the environment or be set in <strong>Admin → Configuration</strong>. A value saved
+            there wins — including an empty one, which means “off” and does not fall back to the environment.
+            <code class="k">DATABASE_URL</code> and <code class="k">CREDENTIAL_ENCRYPTION_KEY</code> are environment-only,
+            because both are needed to read the settings stored next to them.
+          </p>
+
+          <h2 id="why">Why these trade-offs</h2>
+          <ul>
+            <li><strong>One process</strong> — one deploy, one log stream, one warm cache, and sockets that survive the call.</li>
+            <li><strong>A file, not a database server</strong> — nothing to provision for one business or a showroom. Back the folder up; it is the whole state.</li>
+            <li><strong>Metering separate from Stripe</strong> — usage has to be true even when nobody is charged.</li>
+            <li><strong>Admin 404, not 403</strong> — do not confirm the panel exists to a stranger.</li>
+            <li><strong>Health: missing model key is still 200</strong> — keep admin reachable so you can paste the key.</li>
+            <li><strong>Derived onboarding</strong> — a stored step pointer lies the moment someone finishes the work on another screen.</li>
+          </ul>
+        </article>
+
+        <article class="page" data-page="install">
+          <p class="kicker">Tutorial</p>
+          <h1>Install and run it on your machine</h1>
+          <p class="lede">
+            You can sign in, build a receptionist, and talk to it with no cloud services at all. Real phone calls need a
+            public URL and provider keys. Node 20.9 or newer is required; Node 22 is recommended.
+          </p>
+
+          <h2 id="what-you-need">What you need</h2>
+          <ul>
+            <li>Node.js 22 and npm</li>
+            <li>Optional: an xAI or OpenAI key, so the receptionist answers with a model instead of the offline preview</li>
+            <li>Optional: <code class="k">cloudflared</code> (or ngrok) when a carrier must reach your laptop</li>
+          </ul>
+
+          <h2 id="first-run">First run</h2>
+          <pre><code>npm install
+cp .env.example .env.local   # optional
+npm run dev</code></pre>
+          <p>
+            The server listens on <code class="k">PORT</code> (3000 by default). On first start it creates
+            <code class="k">data/db.json</code> with the plans and sample content, and a
+            <code class="k">data/.credential-key</code> for sealing secrets. Delete the folder to start over.
+          </p>
+          <p>
+            Create an account at <code class="k">/login</code> — the first one becomes the platform admin — then open
+            <code class="k">/app</code>.
+          </p>
+
+          <h2 id="useful-scripts">Useful scripts</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Command</th>
+                  <th>What it does</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>npm run dev</td>
+                  <td>Development server with the voice relay (<code class="k">node server.mjs</code>)</td>
+                </tr>
+                <tr>
+                  <td>npm run dev:next</td>
+                  <td>Plain <code class="k">next dev</code>, no relay — phone calls use the turn-based fallback</td>
+                </tr>
+                <tr>
+                  <td>npm run build</td>
+                  <td>Production build</td>
+                </tr>
+                <tr>
+                  <td>npm run start</td>
+                  <td>Production server with the voice relay (<code class="k">node server.mjs --prod</code>)</td>
+                </tr>
+                <tr>
+                  <td>npm run admin:grant -- you@example.com super</td>
+                  <td>Promote an existing account (stop the server first)</td>
+                </tr>
+                <tr>
+                  <td>npm run typecheck</td>
+                  <td>tsc --noEmit</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="local-calls">Taking a real call on a laptop</h2>
+          <ol>
+            <li>Copy <code class="k">.env.example</code> to <code class="k">.env.local</code> (never commit it).</li>
+            <li>Set <code class="k">OPENAI_API_KEY</code> so the live path can answer.</li>
+            <li>Run a tunnel to your port and put the https origin in <code class="k">APP_URL</code>.</li>
+            <li>Start with <code class="k">npm run dev</code> (not <code class="k">dev:next</code>) so the relay is up.</li>
+            <li>Import your Twilio or Plivo number under <strong>Phone numbers</strong> and point the carrier at that origin.</li>
+          </ol>
+          <pre><code>cloudflared tunnel --url http://localhost:3000</code></pre>
+          <p>
+            Carrier signatures are checked against <code class="k">APP_URL</code>. If your tunnel rewrites the URL and
+            every call is refused, set <code class="k">VOICE_SKIP_SIGNATURES=true</code> while developing — never in
+            production.
+          </p>
+
+          <div class="callout warn">
+            <span class="note-title">Do not write secrets into the repo</span>
+            <p>
+              <code class="k">.env*</code> files and <code class="k">data/</code> are gitignored. Generate the encryption
+              and job secrets with Node, keep them in a secret manager on deploy, and never rotate the encryption key
+              while credentials are stored — the old rows become unreadable.
+            </p>
+          </div>
+        </article>
+
+        <article class="page" data-page="env">
+          <p class="kicker">Reference</p>
+          <h1>Environment and settings</h1>
+          <p class="lede">
+            Nothing here is required for <code class="k">npm run dev</code>. Everything below is required before this
+            is a deployment that can keep data safe, take a card, or stay on a live call.
+          </p>
+
+          <h2 id="env-rules">How a value is read</h2>
+          <ol>
+            <li>If the value was saved in Admin → Configuration, that wins — including an empty value, which means off.</li>
+            <li>Otherwise <code class="k">process.env</code> is used (<code class="k">.env.local</code> in development).</li>
+            <li><code class="k">CREDENTIAL_ENCRYPTION_KEY</code> and <code class="k">DATA_DIR</code> are environment-only.</li>
+          </ol>
+
+          <h2 id="env-core">Must exist for a real deployment</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Need</th>
+                  <th>What happens without it</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>DATABASE_URL</td>
+                  <td><span class="badge badge-need">Prod</span></td>
+                  <td>Postgres connection string. The app creates its one table (<code class="k">reception_store</code>) on first start. Without it, data goes to the file below — fine on a persistent volume, lost on hosts that wipe the disk on redeploy (Railway, Render).</td>
+                </tr>
+                <tr>
+                  <td>DATA_DIR</td>
+                  <td><span class="badge badge-opt">File store</span></td>
+                  <td>Where <code class="k">db.json</code> lives when <code class="k">DATABASE_URL</code> is not set. Point it at a persistent volume.</td>
+                </tr>
+                <tr>
+                  <td>CREDENTIAL_ENCRYPTION_KEY</td>
+                  <td><span class="badge badge-need">Prod</span></td>
+                  <td>A key is generated into <code class="k">DATA_DIR/.credential-key</code>. Fine locally; in production keep it outside the data folder.</td>
+                </tr>
+                <tr>
+                  <td>APP_URL</td>
+                  <td><span class="badge badge-need">Calls</span></td>
+                  <td>Carriers have nowhere honest to stream, OAuth redirects and Stripe return links point at localhost.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <pre><code>node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"</code></pre>
+          <p>Use that for <code class="k">CREDENTIAL_ENCRYPTION_KEY</code>. Losing it makes stored credentials unreadable.</p>
+
+          <h2 id="env-ai">AI</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Need</th>
+                  <th>Used for</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>OPENAI_API_KEY</td>
+                  <td><span class="badge badge-need">Live calls</span></td>
+                  <td>Realtime voice, the landing-page live demo, text-to-speech and transcription. Also answers chat when no xAI key is set.</td>
+                </tr>
+                <tr>
+                  <td>REALTIME_MODEL</td>
+                  <td><span class="badge badge-opt">Optional</span></td>
+                  <td>The realtime model for calls. Defaults to <code class="k">gpt-realtime</code>.</td>
+                </tr>
+                <tr>
+                  <td>XAI_API_KEY</td>
+                  <td><span class="badge badge-opt">Preview</span></td>
+                  <td>Browser chat, the widget, the turn-based phone fallback, and the agent designer.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="env-auth">Sign-in, admins, and app OAuth</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Need</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ADMIN_EMAILS</td>
+                  <td><span class="badge badge-opt">First admin</span></td>
+                  <td>Comma-separated addresses that become super-admins once the address is <strong>confirmed</strong> — by Google sign-in, or by opening the link the app emails (or prints to the log on lines starting <code class="k">[admin]</code>). Listed addresses may register even when sign-ups are closed. See <a href="#admin">Platform admin</a>.</td>
+                </tr>
+                <tr>
+                  <td>GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET</td>
+                  <td><span class="badge badge-opt">Google button</span></td>
+                  <td>Shows “Continue with Google” on the sign-in page. Redirect: <code class="k">&lt;origin&gt;/api/auth/google/callback</code>. Runtime settings — no rebuild needed.</td>
+                </tr>
+                <tr>
+                  <td>GOOGLE_CONNECTOR_CLIENT_ID / SECRET</td>
+                  <td><span class="badge badge-opt">Gmail / Calendar / Sheets</span></td>
+                  <td>Redirect: <code class="k">&lt;origin&gt;/api/connect/google/callback</code>. Without it, users paste an access token instead.</td>
+                </tr>
+                <tr>
+                  <td>GOOGLE_ENABLE_GMAIL_READ</td>
+                  <td><span class="badge badge-opt">Restricted</span></td>
+                  <td>Adds gmail.readonly. Leave unset unless Google verification is budgeted.</td>
+                </tr>
+                <tr>
+                  <td>MICROSOFT_CLIENT_ID / SECRET</td>
+                  <td><span class="badge badge-opt">Outlook</span></td>
+                  <td>Entra app registration; redirect <code class="k">&lt;origin&gt;/api/connect/microsoft/callback</code>. Optional <code class="k">MICROSOFT_TENANT</code> for single-tenant apps.</td>
+                </tr>
+                <tr>
+                  <td>SALESFORCE_CLIENT_ID / SECRET</td>
+                  <td><span class="badge badge-opt">Salesforce</span></td>
+                  <td>Connected app; callback <code class="k">&lt;origin&gt;/api/connect/salesforce/callback</code> with api + refresh_token scopes. <code class="k">SALESFORCE_LOGIN_URL</code> for sandboxes.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="env-jobs">Jobs, money, phone, demo</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Need</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>JOBS_SECRET</td>
+                  <td><span class="badge badge-opt">External cron</span></td>
+                  <td>Bearer for <code class="k">/api/jobs/run</code>. Without it the route only answers in development. The server drains the queue itself every minute either way.</td>
+                </tr>
+                <tr>
+                  <td>QSTASH_TOKEN</td>
+                  <td><span class="badge badge-opt">Sleeping hosts</span></td>
+                  <td>Asks QStash to call <code class="k">/api/jobs/run</code> when queued work is due (forwarding <code class="k">JOBS_SECRET</code>). An always-on server drains itself and does not need it.</td>
+                </tr>
+                <tr>
+                  <td>SMTP_HOST, PORT, USER, PASS, FROM</td>
+                  <td><span class="badge badge-opt">Mail</span></td>
+                  <td>Sends the admin confirmation link. Without it the link is printed in the server log. Port 465 uses implicit TLS; anything else upgrades with STARTTLS.</td>
+                </tr>
+                <tr>
+                  <td>OPENAI_WEBHOOK_SECRET</td>
+                  <td><span class="badge badge-opt">SIP path</span></td>
+                  <td>Verifies OpenAI's <code class="k">realtime.call.incoming</code> webhooks for calls that arrive over SIP. See <a href="#webhooks">carrier webhooks</a>.</td>
+                </tr>
+                <tr>
+                  <td>PLIVO_AUTH_ID / PLIVO_AUTH_TOKEN</td>
+                  <td><span class="badge badge-opt">Plivo</span></td>
+                  <td>Fallback for webhook verification. Each imported number also stores its own credentials, sealed.</td>
+                </tr>
+                <tr>
+                  <td>VOICE_SKIP_SIGNATURES</td>
+                  <td><span class="badge badge-opt">Dev only</span></td>
+                  <td>Accept carrier webhooks without checking their signature. Never set in production.</td>
+                </tr>
+                <tr>
+                  <td>DEMO_MODE</td>
+                  <td><span class="badge badge-opt">Showroom</span></td>
+                  <td>
+                    <code class="k">true</code> turns the deployment into a public demo: two one-click accounts on the
+                    sign-in page, seeded with a live receptionist, and every write refused server-side. Conversations
+                    still work, so each visitor spends your model budget — cap it with your provider first.
+                  </td>
+                </tr>
+                <tr>
+                  <td>STRIPE_SECRET_KEY</td>
+                  <td><span class="badge badge-opt">Cards</span></td>
+                  <td>Metering works without Stripe. With it, the Plan tab sells upgrades through Stripe Checkout: create a recurring Price per paid plan and paste its id into that plan at <code class="k">/admin/plans</code>.</td>
+                </tr>
+                <tr>
+                  <td>STRIPE_WEBHOOK_SECRET</td>
+                  <td><span class="badge badge-opt">With Stripe</span></td>
+                  <td>Signing secret of a webhook pointed at <code class="k">POST &lt;APP_URL&gt;/api/billing/stripe</code> (events: checkout.session.completed, customer.subscription.updated / deleted, invoice.paid, invoice.payment_failed). Without it, cancellations and card failures never reach the app.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="env-brand">Brand, site, and flags</h2>
+          <p>
+            These are easiest to edit in <strong>Admin → Configuration</strong> after the first start:
+            <code class="k">BRAND_NAME</code>, <code class="k">BRAND_TAGLINE</code>, <code class="k">SUPPORT_EMAIL</code>,
+            <code class="k">SITE_TITLE</code>, <code class="k">SITE_DESCRIPTION</code>, <code class="k">SITE_OG_IMAGE</code>,
+            <code class="k">SITE_FAVICON</code>, <code class="k">SITE_NOINDEX</code>, <code class="k">ANALYTICS_GA_ID</code>,
+            <code class="k">TERMS_URL</code>, <code class="k">PRIVACY_URL</code>, <code class="k">COMPANY_NAME</code>.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Flag</th>
+                  <th>Default reading</th>
+                  <th>Effect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>FEATURE_SIGNUPS</td>
+                  <td>On</td>
+                  <td>Close registration without taking the site down.</td>
+                </tr>
+                <tr>
+                  <td>FEATURE_OUTBOUND</td>
+                  <td>On</td>
+                  <td>Stop every outbound dial at once.</td>
+                </tr>
+                <tr>
+                  <td>FEATURE_WIDGET</td>
+                  <td>On</td>
+                  <td>Embeddable chat on /w/…</td>
+                </tr>
+                <tr>
+                  <td>FEATURE_LIVE_DEMO</td>
+                  <td>On</td>
+                  <td>Live voice demo on the home page (needs the OpenAI key).</td>
+                </tr>
+                <tr>
+                  <td>RATE_VOICE_MINUTE</td>
+                  <td>1</td>
+                  <td>Minutes charged per live minute.</td>
+                </tr>
+                <tr>
+                  <td>RATE_PHONE_TURN</td>
+                  <td>0.25</td>
+                  <td>Fallback phone turn.</td>
+                </tr>
+                <tr>
+                  <td>RATE_TEXT_MESSAGE</td>
+                  <td>0.025</td>
+                  <td>Chat or SMS exchange.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="page" data-page="deploy">
+          <p class="kicker">How-to</p>
+          <h1>Deploy an always-on process</h1>
+          <p class="lede">
+            Run one long-lived Node process that serves the site, the admin panel, and the call relay, with a persistent
+            disk for <code class="k">DATA_DIR</code>. Do not put it on a platform that sleeps the process or splits each
+            request onto a fresh function.
+          </p>
+
+          <h2 id="why-always-on">Why always-on</h2>
+          <p>
+            A twenty-minute call is one long socket, not twenty cheap requests. Cold start on a voice platform is
+            silence in someone’s ear. Run exactly <strong>one</strong> instance: the data store and every call's
+            WebSockets live in that one process.
+          </p>
+
+          <h2 id="docker">Docker</h2>
+          <pre><code>FROM node:22-slim
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+ENV PORT=8080 DATA_DIR=/data
+VOLUME /data
+EXPOSE 8080
+CMD ["npm", "run", "start"]</code></pre>
+          <pre><code>docker build -t receptionai .
+docker run --rm -p 8080:8080 -v receptionai-data:/data --env-file .env receptionai</code></pre>
+
+          <h2 id="fly">Fly.io</h2>
+          <pre><code>fly launch --no-deploy --name receptionai
+fly volumes create data --size 1
+fly secrets set \
+  CREDENTIAL_ENCRYPTION_KEY='…' \
+  APP_URL='https://receptionai.fly.dev' \
+  OPENAI_API_KEY='sk-…' \
+  JOBS_SECRET='…'
+fly deploy</code></pre>
+          <ul>
+            <li>Mount the volume at <code class="k">/data</code> and set <code class="k">DATA_DIR=/data</code>.</li>
+            <li>Leave <code class="k">auto_stop_machines</code> off and keep one machine.</li>
+            <li>Health check <code class="k">GET /api/health</code>.</li>
+          </ul>
+
+          <h2 id="railway">Railway</h2>
+          <pre><code>railway init --name reception-ai
+railway add --database postgres
+railway up
+railway domain --port 8080</code></pre>
+          <p>
+            Railway wipes the disk on every deploy, so use its Postgres. Point <code class="k">DATABASE_URL</code> at the
+            database service by reference rather than pasting a string, so it survives the database being moved:
+          </p>
+          <pre><code>railway variable set \
+  'DATABASE_URL=${{Postgres.DATABASE_URL}}' \
+  APP_URL='https://&lt;your-app&gt;.up.railway.app' \
+  PORT=8080 \
+  ADMIN_EMAILS='you@example.com'</code></pre>
+          <p>
+            Add <code class="k">CREDENTIAL_ENCRYPTION_KEY</code> and <code class="k">OPENAI_API_KEY</code> the same way.
+            Build command <code class="k">npm run build</code>, start command <code class="k">npm run start</code>,
+            <strong>one</strong> replica (a call's WebSockets live in a single process), health check
+            <code class="k">/api/health</code>.
+          </p>
+
+          <h2 id="render">Render, and other container hosts</h2>
+          <ul>
+            <li>A <strong>web service that never sleeps</strong>, not a static site and not a free instance that spins down.</li>
+            <li>Build: <code class="k">npm ci &amp;&amp; npm run build</code>. Start: <code class="k">npm run start</code>.</li>
+            <li>Bind <code class="k">0.0.0.0</code> on the platform port: <code class="k">HOST=0.0.0.0</code> (the default) and <code class="k">PORT</code>.</li>
+            <li>Set <code class="k">DATABASE_URL</code> to a Postgres database, or attach a persistent disk and point <code class="k">DATA_DIR</code> at it.</li>
+            <li>Vercel and other serverless hosts cannot run the relay or keep the data file. Use them for nothing here.</li>
+          </ul>
+
+          <h2 id="health">Health</h2>
+          <pre><code>curl https://your-app/api/health</code></pre>
+          <p>
+            A real database round trip is part of the check; an unreachable Postgres returns 503 so a bad release cannot
+            replace a good one. <code class="k">store</code> says which store is in use. A missing OpenAI key is reported as
+            <code class="k">degraded</code> and stays 200 so you can still open admin and paste it.
+            <code class="k">voiceRelay</code> tells you whether the process was started through <code class="k">server.mjs</code>.
+          </p>
+
+          <h2 id="webhooks">Carrier webhooks after deploy</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Carrier</th>
+                  <th>URL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Twilio “A call comes in”</td>
+                  <td>POST https://&lt;app&gt;/api/voice/inbound</td>
+                </tr>
+                <tr>
+                  <td>Twilio status callback</td>
+                  <td>POST https://&lt;app&gt;/api/voice/status (set automatically on outbound calls)</td>
+                </tr>
+                <tr>
+                  <td>Plivo answer URL</td>
+                  <td>POST https://&lt;app&gt;/api/voice/plivo</td>
+                </tr>
+                <tr>
+                  <td>Media relay</td>
+                  <td>wss://&lt;app&gt;/api/voice/stream</td>
+                </tr>
+                <tr>
+                  <td>OpenAI SIP (webhook in the OpenAI dashboard)</td>
+                  <td>POST https://&lt;app&gt;/api/voice/realtime — point your SIP trunk at <code class="k">sip:&lt;project-id&gt;@sip.api.openai.com;transport=tls</code> and import the number as “BYO SIP trunk”</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p><code class="k">APP_URL</code> must be that public origin. Signatures and stream XML are built from it.</p>
+        </article>
+
+        <article class="page" data-page="api">
+          <p class="kicker">Reference</p>
+          <h1>HTTP and WebSocket surfaces</h1>
+          <p class="lede">
+            Almost all product work goes through typed server functions at <code class="k">POST /api/fn/:group/:name</code>
+            after a session check. These routes are the ones carriers, schedulers, and browsers hit directly.
+          </p>
+
+          <h2 id="api-table">Routes</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Path</th>
+                  <th>Auth</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>/api/auth/session, sign-in, sign-up, sign-out, change-password</td>
+                  <td>Session cookie</td>
+                  <td>Email and password accounts.</td>
+                </tr>
+                <tr>
+                  <td>GET /api/auth/google/start, callback</td>
+                  <td>OAuth state</td>
+                  <td>“Continue with Google”, when configured.</td>
+                </tr>
+                <tr>
+                  <td>GET /api/admin/confirm?token=…</td>
+                  <td>Session + one-hour token</td>
+                  <td>Confirms an <code class="k">ADMIN_EMAILS</code> address.</td>
+                </tr>
+                <tr>
+                  <td>POST /api/fn/:group/:name</td>
+                  <td>Per function</td>
+                  <td>Every product read and write. Admin functions answer 404 to non-admins.</td>
+                </tr>
+                <tr>
+                  <td>GET /api/health</td>
+                  <td>None</td>
+                  <td>Store + config probe.</td>
+                </tr>
+                <tr>
+                  <td>GET|POST /api/jobs/run</td>
+                  <td>Bearer JOBS_SECRET (open in development)</td>
+                  <td>Drain up to 10 jobs, 20s budget.</td>
+                </tr>
+                <tr>
+                  <td>POST /api/voice/inbound</td>
+                  <td>Twilio signature</td>
+                  <td>Twilio inbound. Stream or turn fallback.</td>
+                </tr>
+                <tr>
+                  <td>POST /api/voice/answer</td>
+                  <td>Twilio signature</td>
+                  <td>Outbound callee picked up (or voicemail detected).</td>
+                </tr>
+                <tr>
+                  <td>POST /api/voice/status</td>
+                  <td>Twilio signature</td>
+                  <td>Call progress; completes and bills the call.</td>
+                </tr>
+                <tr>
+                  <td>POST /api/voice/turn</td>
+                  <td>Twilio signature + call binding</td>
+                  <td>One fallback conversational turn.</td>
+                </tr>
+                <tr>
+                  <td>GET /api/voice/audio/:id</td>
+                  <td>Unguessable id</td>
+                  <td>Short-lived clip in the receptionist's voice for a fallback call's &lt;Play&gt;.</td>
+                </tr>
+                <tr>
+                  <td>POST /api/voice/realtime</td>
+                  <td>OpenAI webhook signature</td>
+                  <td>SIP calls via OpenAI: accept, then follow the call on a sideband connection.</td>
+                </tr>
+                <tr>
+                  <td>GET|POST /api/voice/plivo</td>
+                  <td>Plivo V3 signature</td>
+                  <td>Plivo inbound to the relay.</td>
+                </tr>
+                <tr>
+                  <td>wss://…/api/voice/stream</td>
+                  <td>Per-call token</td>
+                  <td>μ-law relay for the length of the call.</td>
+                </tr>
+                <tr>
+                  <td>POST /api/voice/session, tool, finish</td>
+                  <td>Relay secret</td>
+                  <td>Internal: the relay's view of a call. 404 to everyone else.</td>
+                </tr>
+                <tr>
+                  <td>POST /api/billing/stripe</td>
+                  <td>Stripe signature</td>
+                  <td>Subscription changes, payments, failures.</td>
+                </tr>
+                <tr>
+                  <td>GET /api/connect/:provider/start</td>
+                  <td>Session</td>
+                  <td>Begin connector OAuth (google, microsoft, salesforce).</td>
+                </tr>
+                <tr>
+                  <td>GET /api/connect/:provider/callback</td>
+                  <td>Session + OAuth state</td>
+                  <td>Finish connector OAuth.</td>
+                </tr>
+                <tr>
+                  <td>GET /w/:agentId, /f/:formId, /widget.js</td>
+                  <td>Public</td>
+                  <td>Talk page, public forms, embed script.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="jobs-auth">Draining jobs by hand</h2>
+          <pre><code>curl -X POST https://your-app/api/jobs/run \
+  -H "Authorization: Bearer $JOBS_SECRET"</code></pre>
+
+          <h2 id="health-shape">Health payload</h2>
+          <pre><code>{
+  "status": "ok",
+  "database": "ok",
+  "databaseMs": 12,
+  "store": "postgres",
+  "openaiKey": true,
+  "voiceRelay": true,
+  "uptimeSec": 840,
+  "checkedInMs": 1
+}</code></pre>
+        </article>
+
+        <article class="page" data-page="admin">
+          <p class="kicker">How-to</p>
+          <h1>Platform admin</h1>
+          <p class="lede">
+            The workspace is for one business. Admin is for the people who run every workspace. Non-admins who guess the URL
+            see “Not found”, not “forbidden”.
+          </p>
+
+          <h2 id="grant">Grant the first admin</h2>
+          <p>There are three ways. All need the account to exist, so sign up first — with your own address, <strong>before you publish the URL</strong>.</p>
+
+          <h3 id="grant-env">1. ADMIN_EMAILS (recommended for public installs)</h3>
+          <p>Set <code class="k">ADMIN_EMAILS=you@example.com</code>, sign up with that address, and confirm it. It becomes a super-admin the next time <code class="k">/admin</code> is opened. The address can be confirmed two ways:</p>
+          <ul>
+            <li><strong>Sign in with Google</strong>, if it is configured. Google only reports addresses it has verified.</li>
+            <li><strong>Open the confirmation link.</strong> With SMTP configured it is emailed to you. Without, it is printed in the server's output on lines starting <code class="k">[admin]</code>. Open it in the browser where you are signed in.</li>
+          </ul>
+          <p>
+            Confirmation exists because sign-ups are open: an address typed into a form is not proof of who typed it.
+            Only listed addresses are ever sent a link. It works for one hour, and a new one is offered at most every
+            five minutes. In production the link is always built from <code class="k">APP_URL</code>. While
+            <code class="k">ADMIN_EMAILS</code> is set, the “first account becomes admin” rule below is switched off.
+          </p>
+
+          <h3 id="grant-first">2. Be the first account</h3>
+          <p>
+            Without <code class="k">ADMIN_EMAILS</code>, the very first real account created on a fresh install becomes a
+            super-admin automatically. From <strong>Admins and audit</strong> you can then grant access to anyone else who
+            has signed in at least once.
+          </p>
+
+          <h3 id="grant-cli">3. The command line</h3>
+          <p>For an install where you lost access. With the file store, stop the server first; with Postgres, restart it afterwards:</p>
+          <pre><code>npm run admin:grant -- you@example.com super</code></pre>
+          <p>Levels:</p>
+          <ul>
+            <li><strong>support</strong> — read accounts, no secrets, no writes.</li>
+            <li><strong>super</strong> — secrets, plans, billing, and the right to grant others.</li>
+          </ul>
+
+          <h2 id="admin-screens">Screens</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tab</th>
+                  <th>Path</th>
+                  <th>Who</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Overview</td>
+                  <td>/admin</td>
+                  <td>admin</td>
+                </tr>
+                <tr>
+                  <td>Accounts</td>
+                  <td>/admin/tenants</td>
+                  <td>admin</td>
+                </tr>
+                <tr>
+                  <td>Finance</td>
+                  <td>/admin/finance</td>
+                  <td>super</td>
+                </tr>
+                <tr>
+                  <td>Plans</td>
+                  <td>/admin/plans</td>
+                  <td>super</td>
+                </tr>
+                <tr>
+                  <td>Service health</td>
+                  <td>/admin/health</td>
+                  <td>admin</td>
+                </tr>
+                <tr>
+                  <td>Configuration</td>
+                  <td>/admin/settings</td>
+                  <td>super</td>
+                </tr>
+                <tr>
+                  <td>Audit</td>
+                  <td>/admin/audit</td>
+                  <td>admin</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Required settings the overview nags about while empty: <code class="k">OPENAI_API_KEY</code>,
+            <code class="k">APP_URL</code>, <code class="k">DATABASE_URL</code>, and
+            <code class="k">CREDENTIAL_ENCRYPTION_KEY</code>.
+          </p>
+
+          <h2 id="demo-mode">Demo mode</h2>
+          <p>
+            <code class="k">DEMO_MODE=true</code> turns a deployment into a public showroom — the thing a marketplace
+            listing wants, where buyers try the product before paying and nobody has to be handed a password.
+          </p>
+          <ul>
+            <li>
+              The sign-in page offers two one-click doors, <strong>business owner</strong> and
+              <strong>platform admin</strong>, instead of a form.
+            </li>
+            <li>
+              Both accounts — and a live receptionist with opening hours and a diary — exist from the first start.
+              Their passwords are hashed like everyone else's.
+            </li>
+            <li>
+              <strong>Nothing can be changed.</strong> Every write is refused server-side in the one route every server
+              function passes through, so a visitor calling the API directly gets the same answer the buttons do. The
+              refusal reads <em>"Demo mode: changes are disabled here. Your own install saves everything normally."</em>
+            </li>
+            <li>Registration closes.</li>
+            <li>
+              <strong>Talking to a receptionist still works</strong>, because a demo that cannot answer is not a demo:
+              chat, transcription, voice preview, and the agent designer stay open.
+            </li>
+          </ul>
+          <div class="callout warn">
+            <p>
+              <strong>Cap your model spend before you publish the URL.</strong> Every demo visitor's conversation is
+              billed to your OpenAI and xAI accounts. Plan limits cap minutes per workspace, not the number of people
+              who walk in.
+            </p>
+          </div>
+        </article>
+
+        <article class="page" data-page="troubleshoot">
+          <p class="kicker">How-to</p>
+          <h1>When it does not ring true</h1>
+          <p class="lede">Most failures are a missing public URL, a missing key, or a process that went to sleep.</p>
+
+          <h2 id="blank-or-quiet">The site loads, the receptionist does not talk</h2>
+          <ul>
+            <li>Browser chat, the widget, and rehearsals need <code class="k">XAI_API_KEY</code> or <code class="k">OPENAI_API_KEY</code>. Without either, replies come from the offline preview.</li>
+            <li>The landing page's live voice needs <code class="k">OPENAI_API_KEY</code> and <code class="k">FEATURE_LIVE_DEMO</code> on.</li>
+            <li>Check <code class="k">GET /api/health</code> — <code class="k">openaiKey</code> should be true.</li>
+          </ul>
+
+          <h2 id="call-drops">The call connects, then dies</h2>
+          <ul>
+            <li>The relay never started: the process was launched with <code class="k">next start</code>/<code class="k">next dev</code> instead of <code class="k">server.mjs</code> — <code class="k">voiceRelay</code> in health is false.</li>
+            <li>The stream URL was built from the wrong origin — <code class="k">APP_URL</code> must match the certificate the carrier sees.</li>
+            <li>Webhook signature failed (403 in the log). Check <code class="k">APP_URL</code> and the number's credentials.</li>
+          </ul>
+
+          <h2 id="cannot-save-keys">Saved credentials stopped working</h2>
+          <p>
+            The encryption key changed. Secrets are sealed with <code class="k">CREDENTIAL_ENCRYPTION_KEY</code> (or the
+            generated <code class="k">.credential-key</code>); a different key cannot read them. Restore the old key or
+            reconnect the numbers and apps.
+          </p>
+
+          <h2 id="sign-in">Cannot sign in</h2>
+          <ul>
+            <li>Passwords are at least eight characters.</li>
+            <li>Sign-ups closed: admin flag <code class="k">FEATURE_SIGNUPS</code>, or <code class="k">DEMO_MODE</code> is on.</li>
+          </ul>
+
+          <h2 id="jobs-stuck">Campaigns sit in the queue</h2>
+          <ul>
+            <li>The server drains the queue every minute — but only while the process is awake.</li>
+            <li>On a host that sleeps, set <code class="k">JOBS_SECRET</code> and schedule <code class="k">POST /api/jobs/run</code>.</li>
+            <li>Outbound needs a Twilio number and <code class="k">FEATURE_OUTBOUND</code> on.</li>
+          </ul>
+
+          <h2 id="over-limit">Agent will not publish</h2>
+          <p>
+            The plan’s live-receptionist cap is full. Studio allows one. Scale allows 25. Enterprise does not cap. Usage
+            errors fail open; publish caps do not.
+          </p>
+        </article>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <p>© <span id="year"></span> Reception AI</p>
+        <p>Answers in your words. Hands over when it should.</p>
+      </div>
+    </footer>
+    <script>
+      document.getElementById("year").textContent = String(new Date().getFullYear());
+    </script>
+    <script src="/docs/app.js?v=5"></script>
+  </body>
+</html>
