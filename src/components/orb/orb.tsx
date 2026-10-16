@@ -256,7 +256,7 @@ export function VoiceOrb({
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     const dark = resolved === "dark";
     const ink = (v: number, a: number) =>
-      dark ? `rgba(214,206,255,${(0.08 + v ** 1.6 * 0.92) * a})` : `rgba(80,62,170,${(0.06 + v ** 1.6 * 0.94) * a})`;
+      dark ? `rgba(220,255,140,${(0.08 + v ** 1.6 * 0.92) * a})` : `rgba(26,26,28,${(0.06 + v ** 1.6 * 0.94) * a})`;
     let visible = true;
     let raf = 0;
     let clock = 4;

@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 export type ThemeChoice = "light" | "dark" | "system";
 
 const KEY = "aether-theme";
-const DARK_BG = "#181b2d";
-const LIGHT_BG = "#f8f9fd";
+const DARK_BG = "#0d0d12";
+const LIGHT_BG = "#f5f7fa";
 const DEFAULT: ThemeChoice = "dark";
 
 /** Runs before paint so the first frame already has the right theme. */

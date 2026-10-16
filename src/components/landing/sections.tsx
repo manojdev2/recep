@@ -125,7 +125,7 @@ export function LandingHeader({ name }: { name?: string }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 px-3 pt-3 sm:px-6 sm:pt-4">
-      <div className="mx-auto max-w-6xl rounded-[1.7rem] border border-border/80 bg-surface/90 shadow-[0_8px_35px_#30286008] backdrop-blur-xl">
+      <div className="mx-auto max-w-6xl rounded-[1.7rem] border border-border/80 bg-surface/90 shadow-[0_8px_35px_#0d0d1208] backdrop-blur-xl">
         <div className="flex h-[68px] items-center justify-between gap-2 px-4 sm:px-5">
           <Link href="/" aria-label="Reception AI home" onClick={() => setOpen(false)}>
             <Wordmark name={name} />
@@ -305,7 +305,7 @@ export function Features() {
                   </Link>
                 </div>
                 <div className="product-preview flex min-w-0 flex-col justify-center p-5 sm:p-9">
-                  <div className="rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_60px_-30px_#30286055] sm:p-7">
+                  <div className="rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_60px_-30px_#0d0d1240] sm:p-7">
                     <div className="mb-6 flex items-center gap-2 border-b border-border pb-4">
                       <Mark className="size-6" />
                       <span className="text-xs font-semibold">Reception AI</span>
@@ -1229,7 +1229,7 @@ export function VoiceStudio() {
               type="button"
               aria-label={playing === hero.id ? `Pause ${hero.name}` : `Play ${hero.name}`}
               onClick={() => toggle(hero.id)}
-              className="grid size-14 shrink-0 place-items-center rounded-full bg-white text-[#5140ae] shadow-lg transition-transform hover:scale-105 focus-visible:ring-4 focus-visible:ring-white/50"
+              className="grid size-14 shrink-0 place-items-center rounded-full bg-white text-[#0d0d12] shadow-lg transition-transform hover:scale-105 focus-visible:ring-4 focus-visible:ring-white/50"
             >
               {playing === hero.id ? <Pause className="size-5" /> : <Play className="ml-1 size-5" />}
             </button>
@@ -1272,7 +1272,7 @@ export function VoiceStudio() {
                 >
                   <span
                     className="voice-initial grid size-10 shrink-0 place-items-center rounded-xl text-sm font-medium"
-                    style={{ background: ["#ede5fb", "#e1efeb", "#f6e8df", "#e3ebfb"][i % 4], color: "#514769" }}
+                    style={{ background: ["#f3ffd1", "#eaf6ef", "#f0f2f6", "#e8eef7"][i % 4], color: "#1a1a1c" }}
                   >
                     {p.name.slice(0, 1)}
                   </span>
@@ -1412,7 +1412,7 @@ export function LandingFooter({
               <br />A lot more room to breathe.
             </p>
           </div>
-          <a href="#demo" className="inline-flex w-fit items-center gap-3 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#393150]">
+          <a href="#demo" className="inline-flex w-fit items-center gap-3 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#0d0d12]">
             Come say hello <ArrowUpRight className="size-4" />
           </a>
         </div>

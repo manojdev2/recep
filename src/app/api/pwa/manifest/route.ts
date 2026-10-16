@@ -8,8 +8,8 @@ export function GET() {
       short_name: name,
       start_url: "/app",
       display: "standalone",
-      background_color: "#181b2d",
-      theme_color: "#181b2d",
+      background_color: "#0d0d12",
+      theme_color: "#0d0d12",
       icons: [
         { src: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
         { src: "/icon-180.png", sizes: "180x180", type: "image/png" },

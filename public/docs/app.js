@@ -31,7 +31,7 @@ function setTheme(pref, opts) {
   document.documentElement.style.colorScheme = resolved;
   document.documentElement.dataset.theme = pref;
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", resolved === "light" ? "#f8f9fd" : "#181b2d");
+  if (meta) meta.setAttribute("content", resolved === "light" ? "#f5f7fa" : "#0d0d12");
   try {
     if (opts?.persist !== false) localStorage.setItem(THEME_KEY, pref);
   } catch {

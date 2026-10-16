@@ -106,7 +106,7 @@ export function Landing({ name, supportEmail, companyName, termsUrl, privacyUrl,
             <div data-reveal="" className="story-photo relative overflow-hidden rounded-[2rem]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/images/florist-hero.png" alt="A florist at work in her flower shop" className="h-full w-full object-cover" loading="lazy" />
-              <div className="absolute bottom-5 left-5 right-5 rounded-2xl bg-white/95 p-5 text-[#25283e] shadow-lg">
+              <div className="absolute bottom-5 left-5 right-5 rounded-2xl bg-white/95 p-5 text-[#0d0d12] shadow-lg">
                 <p className="text-[10px] font-semibold tracking-widest uppercase">Made for moments like this</p>
                 <p className="mt-2 text-xl font-medium tracking-tight">Stay with the work you love.</p>
               </div>

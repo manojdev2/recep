@@ -13,7 +13,7 @@ export function Mark({ className }: { className?: string }) {
       />
       <path d="m21 24 7 6" fill="none" className="stroke-accent-fg" strokeWidth="3" strokeLinecap="round" />
       <path d="M18 16v3M22 15v5" className="stroke-accent-fg" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="30.5" cy="9.5" r="3" fill="#bbf3d5" />
+      <circle cx="30.5" cy="9.5" r="3" fill="#ffffff" />
     </svg>
   );
 }

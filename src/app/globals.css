@@ -4,9 +4,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --font-landing: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-landing: "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -77,58 +77,58 @@ html.light {
   --lightningcss-light: initial;
   --lightningcss-dark: ;
   color-scheme: light;
-  --aether-bg: #f8f9fd;
+  --aether-bg: #f5f7fa;
   --aether-surface: #fff;
-  --aether-raised: #f0f1f8;
-  --aether-fg: #25283e;
-  --aether-muted: #61667d;
-  --aether-subtle: #72768b;
-  --aether-border: #e3e5f0;
-  --aether-line: #cdd1e2;
-  --aether-accent: #6050cf;
-  --aether-accent-fg: #fff;
-  --aether-live: #42715a;
+  --aether-raised: #f0f2f6;
+  --aether-fg: #0d0d12;
+  --aether-muted: #4b5160;
+  --aether-subtle: #6b7180;
+  --aether-border: #e3e7ed;
+  --aether-line: #d7dde5;
+  --aether-accent: #1a1a1c;
+  --aether-accent-fg: #cbff3d;
+  --aether-live: #2f7a4f;
   --aether-warn: #946318;
-  --aether-danger: #b63d3d;
-  --aether-ring: #6050cf;
-  --aether-orb-warm: #b2ebff;
-  --aether-orb-cool: #9380f5;
-  --aether-shadow-border: 0 0 0 1px #e3e5f0, 0 4px 14px -8px #302d231a;
-  --aether-shadow-border-hover: 0 0 0 1px #c6c4e4, 0 8px 24px -12px #302d232e;
-  --hero-glow: #6050cf1a;
-  --shimmer-mid: #6050cf14;
-  --consumer-peach: #eeebff;
-  --consumer-sage: #e7f1f0;
-  --consumer-lilac: #eaf0fd;
+  --aether-danger: #c0392b;
+  --aether-ring: #1a1a1c;
+  --aether-orb-warm: #f3ffd1;
+  --aether-orb-cool: #cbff3d;
+  --aether-shadow-border: 0 0 0 1px #e3e7ed, 0 4px 14px -8px #0d0d121a;
+  --aether-shadow-border-hover: 0 0 0 1px #c9d0da, 0 8px 24px -12px #0d0d122e;
+  --hero-glow: #cbff3d33;
+  --shimmer-mid: #cbff3d26;
+  --consumer-peach: #f3ffd1;
+  --consumer-sage: #eaf6ef;
+  --consumer-lilac: #f0f2f6;
 }
 :root,
 html.dark {
   --lightningcss-light: ;
   --lightningcss-dark: initial;
   color-scheme: dark;
-  --aether-bg: #181b2d;
-  --aether-surface: #22263b;
-  --aether-raised: #2d324a;
-  --aether-fg: #f2f3ff;
-  --aether-muted: #c1c5de;
-  --aether-subtle: #a6acc9;
-  --aether-border: #393e59;
-  --aether-line: #505878;
-  --aether-accent: #b7a9ff;
-  --aether-accent-fg: #1f1745;
-  --aether-live: #a0c5a2;
+  --aether-bg: #0d0d12;
+  --aether-surface: #16161c;
+  --aether-raised: #202028;
+  --aether-fg: #fcfcfc;
+  --aether-muted: #b5b5b9;
+  --aether-subtle: #8e8e96;
+  --aether-border: #2a2a33;
+  --aether-line: #3c3c47;
+  --aether-accent: #cbff3d;
+  --aether-accent-fg: #0d0d12;
+  --aether-live: #8fd9a0;
   --aether-warn: #dfbd75;
   --aether-danger: #f49b91;
-  --aether-ring: #b7a9ff;
-  --aether-orb-warm: #b2ebff;
-  --aether-orb-cool: #9380f5;
-  --aether-shadow-border: 0 0 0 1px #393e59;
-  --aether-shadow-border-hover: 0 0 0 1px #69715e;
-  --hero-glow: #b7a9ff1f;
-  --shimmer-mid: #b7a9ff14;
-  --consumer-peach: #342d55;
-  --consumer-sage: #253f43;
-  --consumer-lilac: #293551;
+  --aether-ring: #cbff3d;
+  --aether-orb-warm: #f3ffd1;
+  --aether-orb-cool: #cbff3d;
+  --aether-shadow-border: 0 0 0 1px #2a2a33;
+  --aether-shadow-border-hover: 0 0 0 1px #4a4a55;
+  --hero-glow: #cbff3d1a;
+  --shimmer-mid: #cbff3d14;
+  --consumer-peach: #1e2510;
+  --consumer-sage: #15231c;
+  --consumer-lilac: #1c1f27;
 }
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -355,13 +355,13 @@ button:focus-visible {
 }
 .aurora-orb-halo {
   opacity: calc(0.7 + var(--orb-level) * 0.3);
-  background: radial-gradient(circle, #c4b9f766, #0000 68%);
+  background: radial-gradient(circle, #dfff8a55, #0000 68%);
   border-radius: 50%;
   position: absolute;
   inset: 0;
 }
 .aurora-orb-shadow {
-  background: radial-gradient(#7376cd1a, #0000 70%);
+  background: radial-gradient(#0d0d121a, #0000 70%);
   height: 8px;
   position: absolute;
   bottom: 5%;
@@ -369,10 +369,10 @@ button:focus-visible {
   right: 30%;
 }
 .aurora-orb[data-state="listening"] .aurora-orb-halo {
-  background: radial-gradient(#70d5d733, #8ae1e51a 45%, #0000 70%);
+  background: radial-gradient(#cbff3d33, #e8ffb01a 45%, #0000 70%);
 }
 .aurora-orb[data-state="speaking"] .aurora-orb-halo {
-  background: radial-gradient(#a696ff40, #a9b7fa20 45%, #0000 70%);
+  background: radial-gradient(#cbff3d40, #f3ffd120 45%, #0000 70%);
 }
 .hero-talk-panel .aurora-orb {
   margin: -8px auto;
@@ -391,7 +391,7 @@ button:focus-visible {
   }
 }
 .new-hero {
-  background: radial-gradient(at 50% 67%, #eae6ff80, #0000 53%);
+  background: radial-gradient(at 50% 67%, #eaffb380, #0000 53%);
 }
 .section-title {
   letter-spacing: -0.05em;
@@ -401,7 +401,7 @@ button:focus-visible {
 }
 .experience-stage:before {
   content: "";
-  background: radial-gradient(#d9d4ff66, #e5f7ff33 45%, #0000 70%);
+  background: radial-gradient(#e3ff9a66, #f3ffd133 45%, #0000 70%);
   border-radius: 50%;
   position: absolute;
   inset: 2% 10% 18%;
@@ -425,7 +425,7 @@ button:focus-visible {
   backdrop-filter: blur(10px);
   box-shadow:
     inset 0 1px #fff,
-    0 18px 50px -24px #34306733;
+    0 18px 50px -24px #0d0d1222;
 }
 .dark .experience-note {
   box-shadow:
@@ -559,7 +559,7 @@ button:focus-visible {
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
-  box-shadow: 0 10px 30px -18px #34306740;
+  box-shadow: 0 10px 30px -18px #0d0d1229;
 }
 .demo-composer:focus-within {
   border-color: var(--aether-accent);
@@ -620,11 +620,11 @@ button:focus-visible {
 }
 .voice-feature {
   color: #fff;
-  background: radial-gradient(at 0 0, #a095de80, #0000 65%),
-    linear-gradient(145deg, #6253aa, #393064);
+  background: radial-gradient(at 0 0, #cbff3d40, #0000 65%),
+    linear-gradient(145deg, #1a1a1c, #0d0d12);
 }
 .voice-wave span {
-  background: linear-gradient(#ffffffa0, #c8bbff50);
+  background: linear-gradient(#ffffffa0, #cbff3d60);
   border-radius: 10px;
   width: 4px;
 }
@@ -637,12 +637,12 @@ button:focus-visible {
   }
 }
 .footer-garden {
-  color: #3a3652;
-  background: #eae7f4;
+  color: #1a1a1c;
+  background: #f0f2f6;
 }
 .dark .footer-garden {
-  color: #e1def0;
-  background: #28253d;
+  color: #fcfcfc;
+  background: #16161c;
 }
 @media (prefers-reduced-motion: reduce) {
   .voice-wave[data-playing="true"] span {
@@ -650,13 +650,13 @@ button:focus-visible {
   }
 }
 .dark .new-hero {
-  background: radial-gradient(at 50% 67%, #6e5fae16, #0000 53%);
+  background: radial-gradient(at 50% 67%, #cbff3d10, #0000 53%);
 }
 .dark .experience-stage:before {
-  background: radial-gradient(#7662cb12, #0000 68%);
+  background: radial-gradient(#cbff3d0c, #0000 68%);
 }
 .dark .aurora-orb-halo {
-  background: radial-gradient(circle, #7d67e014, #0000 65%);
+  background: radial-gradient(circle, #cbff3d14, #0000 65%);
 }
 .closing-garden {
   background: var(--consumer-peach);
@@ -669,10 +669,10 @@ button:focus-visible {
   padding: 26px;
   position: relative;
   transform: rotate(-7deg);
-  box-shadow: 0 25px 60px -35px #4e3a9b70;
+  box-shadow: 0 25px 60px -35px #0d0d1240;
 }
 .closing-orbit {
-  border: 1px solid #a293d850;
+  border: 1px solid #a8db1f50;
   border-radius: 50%;
   width: 320px;
   height: 260px;
@@ -681,7 +681,7 @@ button:focus-visible {
 }
 .closing-orbit:before {
   content: "";
-  border: 1px solid #a293d840;
+  border: 1px solid #a8db1f40;
   border-radius: 50%;
   position: absolute;
   inset: 22px -20px;
@@ -888,7 +888,7 @@ button:focus-visible {
   z-index: 2;
   aspect-ratio: 1;
   border: 1px solid var(--aether-surface);
-  background: linear-gradient(135deg, #afe6d0aa, #c1b7ff88 48%, #9bded1aa);
+  background: linear-gradient(135deg, #daff75aa, #f3ffd188 48%, #c7ff2eaa);
   border-radius: 30px;
   width: 17%;
   padding: 10px;
@@ -905,13 +905,13 @@ button:focus-visible {
 .integration-hub {
   box-shadow:
     0 0 0 5px var(--aether-surface),
-    0 15px 45px -20px #6050cf40;
+    0 15px 45px -20px #0d0d1230;
 }
 @supports (color: color-mix(in lab, red, red)) {
   .integration-hub {
     box-shadow:
       0 0 0 5px color-mix(in srgb, var(--aether-surface) 75%, transparent),
-      0 15px 45px -20px #6050cf40;
+      0 15px 45px -20px #0d0d1230;
   }
 }
 .integration-hub-inner {
@@ -926,7 +926,7 @@ button:focus-visible {
   display: flex;
 }
 .integration-hub-inner > svg {
-  filter: drop-shadow(0 5px 10px #6050cf22);
+  filter: drop-shadow(0 5px 10px #0d0d1222);
   width: 45%;
   height: auto;
 }

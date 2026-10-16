@@ -8,11 +8,11 @@
       name="description"
       content="User guide, architecture, environment, install, and deploy notes for Reception AI — the AI receptionist for clinics, salons, restaurants, and trades."
     />
-    <meta name="theme-color" content="#181b2d" />
+    <meta name="theme-color" content="#0d0d12" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
     />
     <link rel="stylesheet" href="/docs/styles.css?v=5" />
     <script>
@@ -28,7 +28,7 @@
           el.style.colorScheme = r;
           el.setAttribute("data-theme", t);
           var m = document.querySelector('meta[name="theme-color"]');
-          if (m) m.setAttribute("content", r === "light" ? "#f8f9fd" : "#181b2d");
+          if (m) m.setAttribute("content", r === "light" ? "#f5f7fa" : "#0d0d12");
         } catch (e) {
           document.documentElement.classList.add("dark");
         }
@@ -42,17 +42,17 @@
       <div class="topbar-inner">
         <a class="wordmark" href="/" aria-label="Reception AI home">
           <svg class="wordmark-mark" viewBox="0 0 40 40" aria-hidden="true">
-            <rect width="40" height="40" rx="13" fill="#6050cf" />
+            <rect width="40" height="40" rx="13" fill="#cbff3d" />
             <path
               d="M11 29V12a2 2 0 0 1 2-2h8a7 7 0 0 1 0 14h-4l-6 5Z"
               fill="none"
-              stroke="#fff"
+              stroke="#0d0d12"
               stroke-width="3"
               stroke-linejoin="round"
             />
             <path d="m21 24 7 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
             <path d="M18 16v3M22 15v5" stroke="#fff" stroke-width="2" stroke-linecap="round" />
-            <circle cx="30.5" cy="9.5" r="3" fill="#bbf3d5" />
+            <circle cx="30.5" cy="9.5" r="3" fill="#ffffff" />
           </svg>
           <span class="wordmark-name">Reception AI</span>
         </a>
@@ -568,7 +568,7 @@
                 </tr>
                 <tr>
                   <td>UI</td>
-                  <td>Tailwind v4, Radix, TanStack Query, Manrope + IBM Plex Mono</td>
+                  <td>Tailwind v4, Radix, TanStack Query, Inter + IBM Plex Mono</td>
                 </tr>
                 <tr>
                   <td>Auth</td>
