@@ -61,7 +61,14 @@ export async function initDb() {
     // Supabase signs its TLS certificates with its own CA. Point DATABASE_CA_CERT at the
     // certificate from the dashboard (Database settings → SSL) to connect over verified TLS.
     const caPath = process.env.DATABASE_CA_CERT;
-    const ssl = caPath ? { ca: fs.readFileSync(caPath, "utf8") } : undefined;
+    let ssl: { ca: string } | undefined;
+    if (caPath) {
+      try {
+        ssl = { ca: fs.readFileSync(caPath, "utf8") };
+      } catch (err) {
+        throw new Error(`[db] DATABASE_CA_CERT points at ${path.resolve(caPath)}, which can't be read. Put the certificate there or fix the path.`, { cause: err });
+      }
+    }
     if (!ssl && /\.supabase\.(co|com)\b/.test(process.env.DATABASE_URL!) && !/[?&]sslmode=/.test(process.env.DATABASE_URL!)) {
       console.warn("[db] Connecting to Supabase without TLS. Set DATABASE_CA_CERT to encrypt the connection.");
     }

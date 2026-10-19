@@ -219,10 +219,10 @@ export const tools = {
     const data = db();
     const agent = data.agents.find((a) => a.id === input.agentId && a.userId === user.id);
     if (!agent) throw new RpcError("Choose a receptionist.");
-    // A bare wall-clock time ("2026-10-20T10:00", from a datetime-local input) is read in the
-    // workspace timezone, not the browser's; anything with an offset is taken as given.
+    // A bare wall-clock time ("2026-10-20T10:00", from a datetime-local input; some browsers add
+    // seconds) is read in the workspace timezone, not the browser's; anything with an offset is taken as given.
     const zone = workspaceZone(user.id);
-    const wall = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(input.startsAt ?? "");
+    const wall = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/.exec(String(input.startsAt ?? ""));
     const at = wall
       ? zonedInstant(+wall[1], +wall[2] - 1, +wall[3], +wall[4] * 60 + +wall[5], zone || "UTC")
       : new Date(input.startsAt);

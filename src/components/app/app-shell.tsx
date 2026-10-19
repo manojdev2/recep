@@ -301,7 +301,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     noAgents && !isAdmin ? null : (
       <div className="shrink-0 border-t border-border py-2">
         {noAgents ? null : <SetupProgress onNavigate={() => setMenuOpen(false)} />}
-        <AdminLink />
+        {/* The session already says who is an admin; don't make everyone else hit a 404. */}
+        {isAdmin ? <AdminLink /> : null}
       </div>
     );
 
