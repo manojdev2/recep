@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ComponentType } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentType } from "react";
 import { GitBranch, MessageCircle, Minus, Phone, PhoneForwarded, PhoneOff, Plus, Trash2, Wrench, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -261,13 +261,16 @@ export function WorkflowEditor({
   const [zoom, setZoom] = useState(1);
   const [selected, setSelected] = useState<string | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
-  const [wireEnd, setWireEnd] = useState<{ x: number; y: number } | null>(null);
-  const [fitted, setFitted] = useState(false);
+  // The wire being dragged out of a port: where it starts and where the pointer is.
+  const [wire, setWire] = useState<{ from: string; x: number; y: number } | null>(null);
+  const fitted = useRef(false);
   const [tryPhrase, setTryPhrase] = useState("");
   const flow = value.nodes.length ? value : blankWorkflow();
   const sel = flow.nodes.find((n) => n.id === selected) ?? null;
   const blank = isBlank(flow);
-  panRef.current = pan;
+  useLayoutEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
 
   const toWorld = useCallback(
     (cx: number, cy: number) => {
@@ -293,11 +296,13 @@ export function WorkflowEditor({
   }, [flow.nodes]);
 
   useEffect(() => {
-    if (fitted) return;
-    const id = requestAnimationFrame(fit);
-    setFitted(true);
+    if (fitted.current) return;
+    const id = requestAnimationFrame(() => {
+      fitted.current = true;
+      fit();
+    });
     return () => cancelAnimationFrame(id);
-  }, [fit, fitted]);
+  }, [fit]);
 
   useEffect(() => {
     const el = canvas.current;
@@ -394,6 +399,7 @@ export function WorkflowEditor({
         setSelected(null);
         setSelectedEdge(null);
         drag.current = null;
+        setWire(null);
       }
     }
     window.addEventListener("keydown", onKey);
@@ -402,7 +408,8 @@ export function WorkflowEditor({
 
   const outs = sel ? outsOf(flow, sel.id) : [];
   const lit = tryPhrase.trim() && outs.length ? route(outs, tryPhrase) : null;
-  const wiring = drag.current?.kind === "wire" ? flow.nodes.find((n) => n.id === (drag.current as { from: string }).from) : null;
+  const wiring = wire ? flow.nodes.find((n) => n.id === wire.from) : null;
+  const wireEnd = wire;
 
   return (
     <div className="relative flex h-full min-h-0 flex-col">
@@ -420,7 +427,7 @@ export function WorkflowEditor({
             if (!from) return;
             const p = toWorld(e.clientX, e.clientY);
             drag.current = { kind: "wire", from, x: p.x, y: p.y, replace: port.dataset.replace === "1" };
-            setWireEnd(p);
+            setWire({ from, ...p });
             setSelected(from);
             setSelectedEdge(null);
             e.currentTarget.setPointerCapture(e.pointerId);
@@ -450,7 +457,7 @@ export function WorkflowEditor({
           else if (d.kind === "node") {
             const p = toWorld(e.clientX, e.clientY);
             patchNode(d.id, {}, { x: Math.round((p.x - d.ox) / 8) * 8, y: Math.round((p.y - d.oy) / 8) * 8 });
-          } else setWireEnd(toWorld(e.clientX, e.clientY));
+          } else setWire({ from: d.from, ...toWorld(e.clientX, e.clientY) });
         }}
         onPointerUp={(e) => {
           const d = drag.current;
@@ -459,7 +466,7 @@ export function WorkflowEditor({
             if (target && target.id !== d.from) connect(d.from, target.id, d.replace);
           }
           drag.current = null;
-          setWireEnd(null);
+          setWire(null);
         }}
       >
         <aside
@@ -505,7 +512,7 @@ export function WorkflowEditor({
             onClick={() => {
               commit(starterWorkflow(job, greeting));
               setSelected(null);
-              setFitted(false);
+              fitted.current = false;
             }}
           >
             Starter
@@ -517,7 +524,7 @@ export function WorkflowEditor({
             onClick={() => {
               commit(blankWorkflow());
               setSelected(null);
-              setFitted(false);
+              fitted.current = false;
             }}
           >
             <Minus className="size-4" />

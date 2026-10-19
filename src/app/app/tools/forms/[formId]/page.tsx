@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
@@ -29,13 +29,14 @@ export default function FormEditorPage() {
   const [fields, setFields] = useState<FormField[]>([]);
   const [confirm, setConfirm] = useState(false);
 
-  useEffect(() => {
-    if (!form.data) return;
+  const [loaded, setLoaded] = useState<typeof form.data>();
+  if (form.data && form.data !== loaded) {
+    setLoaded(form.data);
     setName(form.data.form.name);
     setDescription(form.data.form.description);
     setAgentId(form.data.form.agentId);
     setFields(form.data.form.fields);
-  }, [form.data]);
+  }
 
   const save = useMutation({
     mutationFn: () => api.tools.saveForm({ id: formId, name, description, agentId, fields, status: "live" }),

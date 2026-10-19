@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -58,7 +58,7 @@ function outcomeTitle(c: Conv) {
 
 export default function ConversationsPage() {
   const list = useQuery({ queryKey: ["conversations"], queryFn: () => api.agents.conversations() });
-  const [selected, setSelected] = useState<string | null>(null);
+  const [picked, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [showDetail, setShowDetail] = useState(false);
@@ -82,9 +82,7 @@ export default function ConversationsPage() {
     });
   }, [list.data, search, filter]);
 
-  useEffect(() => {
-    if (!selected && rows[0]) setSelected(rows[0].id);
-  }, [rows, selected]);
+  const selected = picked ?? rows[0]?.id ?? null;
 
   const current = rows.find((c) => c.id === selected) ?? list.data?.find((c) => c.id === selected);
   const messages = useQuery({

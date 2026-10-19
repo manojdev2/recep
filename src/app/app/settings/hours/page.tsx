@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CircleAlert, Plus, Sparkles, X } from "lucide-react";
@@ -50,7 +50,12 @@ function ZoneSection({ current }: { current: string }) {
   const qc = useQueryClient();
   const detected = useBrowserZone();
   const [zone, setZone] = useState(current);
-  useEffect(() => setZone(current || detected), [current, detected]);
+  const source = current || detected;
+  const [prevSource, setPrevSource] = useState(source);
+  if (source !== prevSource) {
+    setPrevSource(source);
+    setZone(source);
+  }
   const chosen = zone || detected;
   const save = useMutation({
     mutationFn: () => api.hours.setTimeZone({ timeZone: chosen }),
@@ -156,11 +161,13 @@ function AgentSection({ agent, hasZone }: { agent: AgentHours; hasZone: boolean 
   const [windows, setWindows] = useState(agent.windows);
   const [slot, setSlot] = useState(agent.slotMinutes);
   const [horizon, setHorizon] = useState(agent.horizonDays);
-  useEffect(() => {
+  const [prevAgent, setPrevAgent] = useState(agent);
+  if (agent !== prevAgent) {
+    setPrevAgent(agent);
     setWindows(agent.windows);
     setSlot(agent.slotMinutes);
     setHorizon(agent.horizonDays);
-  }, [agent]);
+  }
   const suggest = useMutation({
     mutationFn: () => api.hours.suggest({ agentId: agent.agentId }),
     onSuccess: (out) => {

@@ -51,6 +51,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useLayoutEffect(() => {
     const t = stored();
+    // The stored choice exists only in the browser; a layout effect applies it before first paint.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setThemeState(t);
     setResolved(apply(t));
   }, []);

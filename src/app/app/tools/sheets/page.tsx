@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AppMark } from "@/components/brand-marks";
@@ -26,14 +26,15 @@ export default function SheetsPage() {
   const [leads, setLeads] = useState(true);
   const conn = (apps.data ?? []).find((c) => c.appKey === "gsheets");
 
-  useEffect(() => {
-    if (!dest.data) return;
+  const [loaded, setLoaded] = useState<typeof dest.data>();
+  if (dest.data && dest.data !== loaded) {
+    setLoaded(dest.data);
     setSpreadsheetId(dest.data.spreadsheet_id);
     setSheetName(dest.data.sheet_name || "Reception AI");
     setAppointments(!!dest.data.push_appointments);
     setForms(!!dest.data.push_forms);
     setLeads(!!dest.data.push_leads);
-  }, [dest.data]);
+  }
 
   const save = useMutation({
     mutationFn: () =>

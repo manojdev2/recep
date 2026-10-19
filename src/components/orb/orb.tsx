@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
 import { AudioLines } from "lucide-react";
 import { useTheme } from "@/components/theme";
 import { cn } from "@/lib/utils";
@@ -23,45 +23,39 @@ function prefersDark() {
   return typeof matchMedia === "undefined" || matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+/** Follows the page's theme (class / data-theme on an ancestor) and the OS colour scheme. */
 function useDark(theme: "auto" | "dark" | "light", ref: RefObject<HTMLCanvasElement | null>) {
-  const [dark, setDark] = useState(true);
-  useEffect(() => {
-    if (theme === "dark") {
-      setDark(true);
-      return;
-    }
-    if (theme === "light") {
-      setDark(false);
-      return;
-    }
-    const check = () => setDark(themeFromDom(ref.current) ?? prefersDark());
-    check();
+  const subscribe = useCallback((onChange: () => void) => {
     const mq = typeof matchMedia !== "undefined" ? matchMedia("(prefers-color-scheme: dark)") : null;
-    mq?.addEventListener("change", check);
-    let obs: MutationObserver | null = null;
-    if (typeof MutationObserver !== "undefined" && ref.current) {
-      obs = new MutationObserver(check);
-      obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"], subtree: true });
-    }
+    mq?.addEventListener("change", onChange);
+    const obs = typeof MutationObserver !== "undefined" ? new MutationObserver(onChange) : null;
+    obs?.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"], subtree: true });
     return () => {
-      mq?.removeEventListener("change", check);
+      mq?.removeEventListener("change", onChange);
       obs?.disconnect();
     };
-  }, [theme, ref]);
-  return dark;
+  }, []);
+  const autoDark = useSyncExternalStore(
+    subscribe,
+    () => themeFromDom(ref.current) ?? prefersDark(),
+    () => true,
+  );
+  return theme === "auto" ? autoDark : theme === "dark";
+}
+
+function subscribeReducedMotion(onChange: () => void) {
+  if (typeof matchMedia === "undefined") return () => {};
+  const mq = matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
 }
 
 function useReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    if (typeof matchMedia === "undefined") return;
-    const mq = matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const on = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
-  return reduced;
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
+  );
 }
 
 const STATE_LABEL: Record<OrbState, string> = {

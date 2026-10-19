@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -367,9 +367,13 @@ export default function StudioPage() {
   const [scenario, setScenario] = useState("refund");
   const [sim, setSim] = useState<{ transcript: { role: string; content: string }[]; passed: boolean; goal: string } | null>(null);
 
-  useEffect(() => {
-    if (agentQuery.data?.agent) setAgent(agentQuery.data.agent);
-  }, [agentQuery.data?.agent]);
+  // Take each freshly loaded agent into the editable copy (adjusting state during render).
+  const loadedAgent = agentQuery.data?.agent;
+  const [syncedAgent, setSyncedAgent] = useState<Agent | undefined>();
+  if (loadedAgent && loadedAgent !== syncedAgent) {
+    setSyncedAgent(loadedAgent);
+    setAgent(loadedAgent);
+  }
 
   const refreshAgent = async () => {
     await qc.invalidateQueries({ queryKey: ["agent", agentId] });

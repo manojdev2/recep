@@ -73,5 +73,7 @@ export async function signOut(to = "/") {
 
 /** Start a social sign-in (only providers the server reports as configured are offered). */
 export function signInWith(provider: string) {
-  window.location.href = `/api/auth/${provider}/start`;
+  // An API route that redirects to the provider, not a page — it needs a real navigation.
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  window.location.assign(`/api/auth/${provider}/start`);
 }
