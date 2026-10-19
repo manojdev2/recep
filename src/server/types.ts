@@ -127,6 +127,8 @@ export type Conversation = {
   callerContact: string | null;
   callId: string | null;
   outcome: { kind: "appointment" | "lead" | "ticket" | "transfer"; title: string; summary: string } | null;
+  /** The times list_slots last offered, so later turns can book by id ("the first one"). */
+  offeredSlots?: { id: string; when: string }[];
 };
 
 export type Message = {

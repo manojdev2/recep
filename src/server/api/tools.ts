@@ -7,7 +7,7 @@ import { emit, WEBHOOK_EVENTS } from "../events";
 import { allow, clientIp } from "../rate-limit";
 import { mutation, publicMutation, publicQuery, query, RpcError } from "../rpc";
 import { numberSetting } from "../settings";
-import { workspaceZone } from "../slots";
+import { slotLabel, workspaceZone, zonedInstant } from "../slots";
 import type { Form, FormField, LeadStatus, MessagingChannel } from "../types";
 
 function formRow(f: Form) {
@@ -198,6 +198,7 @@ export const tools = {
   // ---- Appointments --------------------------------------------------------------------
   allSlots: query((_: void, { user }) => {
     const data = db();
+    const zone = workspaceZone(user.id);
     const since = Date.now() - 7 * 864e5;
     return data.slots
       .filter((s) => s.userId === user.id && new Date(s.startsAt).getTime() > since)
@@ -206,6 +207,7 @@ export const tools = {
       .map((s) => ({
         id: s.id,
         starts_at: s.startsAt,
+        label: slotLabel(s.startsAt, zone),
         agent_name: data.agents.find((a) => a.id === s.agentId)?.name ?? "—",
         status: s.status,
         booked_name: s.bookedName,
@@ -217,19 +219,31 @@ export const tools = {
     const data = db();
     const agent = data.agents.find((a) => a.id === input.agentId && a.userId === user.id);
     if (!agent) throw new RpcError("Choose a receptionist.");
-    const at = new Date(input.startsAt);
+    // A bare wall-clock time ("2026-10-20T10:00", from a datetime-local input) is read in the
+    // workspace timezone, not the browser's; anything with an offset is taken as given.
+    const zone = workspaceZone(user.id);
+    const wall = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(input.startsAt ?? "");
+    const at = wall
+      ? zonedInstant(+wall[1], +wall[2] - 1, +wall[3], +wall[4] * 60 + +wall[5], zone || "UTC")
+      : new Date(input.startsAt);
     if (Number.isNaN(at.getTime())) throw new RpcError("Pick a date and time.");
     if (at.getTime() < Date.now()) throw new RpcError("That time has passed.");
     const length = data.hours.find((h) => h.agentId === agent.id)?.slotMinutes ?? 30;
-    if (data.slots.some((s) => s.agentId === agent.id && s.startsAt === at.toISOString() && s.status !== "cancelled")) {
-      throw new RpcError("That time is already in the diary.");
-    }
+    const end = at.getTime() + length * 60_000;
+    const clash = data.slots.find(
+      (s) =>
+        s.agentId === agent.id &&
+        s.status !== "cancelled" &&
+        new Date(s.startsAt).getTime() < end &&
+        new Date(s.endsAt).getTime() > at.getTime(),
+    );
+    if (clash) throw new RpcError(`That overlaps ${slotLabel(clash.startsAt, zone)}, already in the diary.`);
     data.slots.push({
       id: newId("slot"),
       userId: user.id,
       agentId: agent.id,
       startsAt: at.toISOString(),
-      endsAt: new Date(at.getTime() + length * 60_000).toISOString(),
+      endsAt: new Date(end).toISOString(),
       status: "open",
       bookedName: "",
       bookedContact: "",
@@ -242,12 +256,35 @@ export const tools = {
       createdAt: nowIso(),
     });
     save();
-    return { ok: true, timeZone: workspaceZone(user.id) };
+    return { ok: true, timeZone: zone };
   }),
 
   setSlotStatus: mutation((input: { id: string; status: "open" | "cancelled" }, { user }) => {
-    const s = db().slots.find((x) => x.id === input.id && x.userId === user.id);
+    const data = db();
+    const s = data.slots.find((x) => x.id === input.id && x.userId === user.id);
     if (!s) throw new RpcError("That time is gone.", 404);
+    if (input.status !== "open" && input.status !== "cancelled") throw new RpcError("Unknown status.");
+    if (input.status === "open") {
+      if (s.status === "booked") throw new RpcError("Cancel the booking first.");
+      if (data.slots.some((x) => x.id !== s.id && x.agentId === s.agentId && x.startsAt === s.startsAt && x.status !== "cancelled")) {
+        throw new RpcError("That time is already in the diary.");
+      }
+      Object.assign(s, { bookedName: "", bookedContact: "", reason: "", confirmation: "", conversationId: null, bookedAt: null });
+    } else if (s.status === "booked" && new Date(s.startsAt).getTime() > Date.now()) {
+      // The booking record stays (cancelled); a fresh open time takes its place in the diary.
+      data.slots.push({
+        ...s,
+        id: newId("slot"),
+        status: "open",
+        bookedName: "",
+        bookedContact: "",
+        reason: "",
+        confirmation: "",
+        conversationId: null,
+        bookedAt: null,
+        createdAt: nowIso(),
+      });
+    }
     s.status = input.status;
     save();
     return { ok: true };

@@ -138,7 +138,8 @@ export async function runTurn(input: TurnInput): Promise<TurnResult> {
   }
 
   const persist = input.persist !== false;
-  const history = input.messages.filter((m) => m.content.trim()).slice(-24);
+  // Only spoken text: stored tool rows (phone fallback history) have no tool_call_id and would be rejected.
+  const history = input.messages.filter((m) => (m.role === "user" || m.role === "assistant") && m.content?.trim()).slice(-24);
   const last = [...history].reverse().find((m) => m.role === "user");
   if (!last) return { ok: false, error: "Say something first." };
 
@@ -183,6 +184,17 @@ export async function runTurn(input: TurnInput): Promise<TurnResult> {
 
   const messages: ChatMessage[] = [
     { role: "system", content: systemPrompt(agent, passages) },
+    // Earlier tool results aren't in the history, so remind the model which ids it offered.
+    ...(conversation.offeredSlots?.length
+      ? [
+          {
+            role: "system" as const,
+            content: `Times offered earlier in this conversation (use these ids with book_appointment): ${conversation.offeredSlots
+              .map((o) => `${o.id} = ${o.when}`)
+              .join("; ")}`,
+          },
+        ]
+      : []),
     ...history.map((m) => ({ role: m.role, content: m.content }) as ChatMessage),
   ];
   const tools = toolSpecs(agent.id);
