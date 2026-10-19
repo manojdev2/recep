@@ -40,6 +40,8 @@ export function SetupChecklist() {
       sessionStorage.removeItem(OPEN_FLAG);
       open();
     } else {
+      // Mount-time read of browser storage: the server render can't know it, so it must follow hydration.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDismissed(localStorage.getItem(DISMISSED) === "1");
     }
     window.addEventListener(OPEN_EVENT, open);

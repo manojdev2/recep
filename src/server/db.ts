@@ -58,9 +58,39 @@ export async function initDb() {
   if (!usingPostgres() || g.__receptionDb) return;
   g.__receptionDbInit ??= (async () => {
     const { default: pg } = await import("pg");
-    const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 4 });
+    // Supabase signs its TLS certificates with its own CA. Point DATABASE_CA_CERT at the
+    // certificate from the dashboard (Database settings → SSL) to connect over verified TLS.
+    const caPath = process.env.DATABASE_CA_CERT;
+    const ssl = caPath ? { ca: fs.readFileSync(caPath, "utf8") } : undefined;
+    if (!ssl && /\.supabase\.(co|com)\b/.test(process.env.DATABASE_URL!) && !/[?&]sslmode=/.test(process.env.DATABASE_URL!)) {
+      console.warn("[db] Connecting to Supabase without TLS. Set DATABASE_CA_CERT to encrypt the connection.");
+    }
+    const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 4, ssl });
+    // Poolers drop idle connections (restarts, maintenance); without a listener that crashes the process.
+    pool.on("error", (err) => console.error("[db] idle Postgres connection dropped", err.message));
+    try {
+      await pool.query(
+        `create table if not exists ${TABLE} (collection text primary key, data jsonb not null, updated_at timestamptz not null default now())`,
+      );
+    } catch (err) {
+      const e = err as NodeJS.ErrnoException;
+      const hint =
+        e.code === "SELF_SIGNED_CERT_IN_CHAIN"
+          ? "Set DATABASE_CA_CERT to the CA certificate from Supabase (Database → Settings → SSL Configuration)."
+          : e.code === "ENOTFOUND" || e.code === "ENETUNREACH" || /tenant or user not found/i.test(e.message)
+            ? "Check DATABASE_URL. On Supabase use the Session pooler string; a free project may also be paused (restore it in the dashboard)."
+            : e.code === "28P01"
+              ? "The database password in DATABASE_URL is wrong (percent-encode special characters)."
+              : "";
+      throw new Error(`[db] Could not reach Postgres: ${e.message}${hint ? `\n${hint}` : ""}`, { cause: err });
+    }
+    // On Supabase the public schema is served by the Data API. With RLS on and no policies,
+    // anon/authenticated see nothing; the app's own role owns the table and is unaffected.
+    await pool.query(`alter table ${TABLE} enable row level security`);
+    // Belt and braces: take away Supabase's default Data API grants (the roles only exist there).
     await pool.query(
-      `create table if not exists ${TABLE} (collection text primary key, data jsonb not null, updated_at timestamptz not null default now())`,
+      `do $$ begin if exists (select 1 from pg_roles where rolname = 'anon') and exists (select 1 from pg_roles where rolname = 'authenticated')
+       then revoke all on ${TABLE} from anon, authenticated; end if; end $$`,
     );
     const { rows } = await pool.query<{ collection: string; data: unknown }>(`select collection, data from ${TABLE}`);
     const written = new Map<string, string>();
@@ -153,6 +183,14 @@ export async function flush() {
   }
   if (s.pg) await flushPostgres(s);
   else flushFile(s);
+}
+
+/** A real round trip to the store (health checks). Uses the app's own pool and TLS settings. */
+export async function pingDb() {
+  const pgs = g.__receptionDb?.pg;
+  if (pgs) await pgs.pool.query("select 1");
+  else if (usingPostgres()) throw new Error("The Postgres store is not loaded yet.");
+  else void db().users.length;
 }
 
 export function nowIso() {

@@ -56,13 +56,13 @@ export function DemoPanel() {
   }, [lines, sending]);
 
   useEffect(() => {
-    if (!connected) {
-      setElapsed(0);
-      return;
-    }
+    if (!connected) return;
     const from = Date.now();
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - from) / 1000)), 1000);
-    return () => clearInterval(t);
+    return () => {
+      clearInterval(t);
+      setElapsed(0);
+    };
   }, [connected]);
 
   function start() {

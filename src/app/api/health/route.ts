@@ -1,22 +1,11 @@
-import { db, usingPostgres } from "@/server/db";
+import { pingDb, usingPostgres } from "@/server/db";
 import { getSetting } from "@/server/settings";
 
 export const dynamic = "force-dynamic";
 
 async function probeDatabase() {
   const t = Date.now();
-  if (usingPostgres()) {
-    const { default: pg } = await import("pg");
-    const client = new pg.Client({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 3000 });
-    try {
-      await client.connect();
-      await client.query("select 1");
-    } finally {
-      await client.end().catch(() => {});
-    }
-  } else {
-    void db().users.length;
-  }
+  await pingDb();
   return Date.now() - t;
 }
 

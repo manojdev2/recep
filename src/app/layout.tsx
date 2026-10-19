@@ -5,6 +5,10 @@ import { themeInitScript } from "@/components/theme";
 import { siteMeta } from "@/server/settings";
 import "./globals.css";
 
+// Brand, title and analytics come from the store, which is only loaded at runtime (Postgres) and
+// can be changed by an admin at any time — so never bake them into prerendered pages.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const site = siteMeta();
   return {

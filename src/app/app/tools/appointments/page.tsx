@@ -8,13 +8,13 @@ import { DataTable, EmptyState, Page, PageBody } from "@/components/app/page";
 import { ToolHeader } from "@/components/app/tool-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { api } from "@/lib/api";
 
 const COLS = "sm:grid-cols-[minmax(0,1.2fr)_10rem_minmax(0,1fr)_8rem]";
-const when = (iso: string) => new Date(iso).toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
 export default function AppointmentsPage() {
   const qc = useQueryClient();
@@ -26,11 +26,20 @@ export default function AppointmentsPage() {
     for (const key of ["all-slots", "slots", "booked-slots"]) await qc.invalidateQueries({ queryKey: [key] });
   };
   const open = useMutation({
-    mutationFn: () => api.tools.openSlot({ agentId, startsAt: new Date(at).toISOString() }),
+    mutationFn: () => api.tools.openSlot({ agentId, startsAt: at }),
     onSuccess: async () => {
       await refresh();
       setAt("");
       toast.success("Slot opened");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const [cancelling, setCancelling] = useState<{ id: string; booked_name: string; label: string } | null>(null);
+  const cancel = useMutation({
+    mutationFn: (id: string) => api.tools.setSlotStatus({ id, status: "cancelled" }),
+    onSuccess: async () => {
+      await refresh();
+      setCancelling(null);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -69,7 +78,7 @@ export default function AppointmentsPage() {
             <DataTable columns={["When", "Agent", "Who", "Status"]} colsClass={COLS}>
               {rows.map((s) => (
                 <li className={`grid items-center gap-2 px-4 py-3 sm:px-6 ${COLS}`} key={s.id}>
-                  <span className="text-sm">{when(String(s.starts_at))}</span>
+                  <span className="text-sm">{s.label}</span>
                   <span className="truncate text-sm text-muted">{s.agent_name}</span>
                   <span className="truncate text-sm">{(s.status === "booked" && (s.booked_name || s.booked_contact)) || "—"}</span>
                   <span className="flex items-center gap-2">
@@ -78,10 +87,7 @@ export default function AppointmentsPage() {
                       <button
                         type="button"
                         className="text-xs text-muted hover:text-fg"
-                        onClick={async () => {
-                          await api.tools.setSlotStatus({ id: s.id, status: "cancelled" });
-                          await refresh();
-                        }}
+                        onClick={() => (s.status === "booked" ? setCancelling(s) : cancel.mutate(s.id))}
                       >
                         Cancel
                       </button>
@@ -94,6 +100,17 @@ export default function AppointmentsPage() {
             <EmptyState icon={Calendar} title="No times yet" description="Open a slot, or talk to a booking agent — confirmed visits land here." />
           )}
         </div>
+        <ConfirmDialog
+          open={!!cancelling}
+          title="Cancel this booking?"
+          description={`${cancelling?.booked_name || "The caller"} is booked for ${cancelling?.label}. The time opens up for new bookings. The caller is not told automatically.`}
+          confirmLabel="Cancel booking"
+          cancelLabel="Keep"
+          danger
+          pending={cancel.isPending}
+          onOpenChange={(o) => !o && setCancelling(null)}
+          onConfirm={() => cancelling && cancel.mutate(cancelling.id)}
+        />
       </PageBody>
     </Page>
   );

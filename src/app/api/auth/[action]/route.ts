@@ -13,9 +13,8 @@ import {
   verifyPassword,
 } from "@/server/auth";
 import { claimAdmin, isListedAdmin } from "@/server/admin-claim";
-import { db, nowIso, save } from "@/server/db";
+import { db, save } from "@/server/db";
 import { branding, DEMO_REFUSAL, isDemoMode, requestOrigin } from "@/server/settings";
-import { newId } from "@/lib/utils";
 
 type Params = { params: Promise<{ action: string }> };
 

@@ -20,7 +20,7 @@ const SCHEMAS: Record<string, { description?: string; properties: Record<string,
   },
   book_appointment: {
     properties: {
-      slot_id: { type: "string", description: "The id of an open time from list_slots." },
+      slot_id: { type: "string", description: "The exact id (like slot_ab12…) of an open time from list_slots — not its position or the time." },
       name: { type: "string", description: "Caller's full name." },
       contact: { type: "string", description: "Callback phone number or email." },
       reason: { type: "string", description: "What the visit is for." },
@@ -106,20 +106,34 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
       let slots = openSlots(agent.id, limit, after);
       if (!slots.length && after) slots = openSlots(agent.id, limit);
       if (!slots.length) return { slots: [], note: "No open times in the diary. Offer to take a message and a callback number." };
-      return { timezone: zone, slots: slots.map((x) => ({ id: x.id, when: spokenTime(x.startsAt, zone) })) };
+      const offered = slots.map((x) => ({ id: x.id, when: spokenTime(x.startsAt, zone) }));
+      conversation.offeredSlots = offered;
+      save();
+      return { timezone: zone, slots: offered };
     }
     case "book_appointment": {
       const id = s(args.slot_id);
       const slot =
         data.slots.find((x) => x.id === id && x.agentId === agent.id) ??
         data.slots.find((x) => x.agentId === agent.id && x.status === "open" && spokenTime(x.startsAt, zone).toLowerCase() === id.toLowerCase());
-      if (!slot) return { booked: false, error: "That time is not in the diary. Call list_slots and offer one of those." };
+      if (!slot) {
+        // Usually a position ("1") or a bare time instead of an id: hand back the open times so the
+        // model can retry with the right id in the same turn rather than telling the caller it's gone.
+        const open = openSlots(agent.id, 6).map((x) => ({ id: x.id, when: spokenTime(x.startsAt, zone) }));
+        return {
+          booked: false,
+          error: "slot_id must be one of the ids below, not a number or a time. Pick the one the caller chose and call book_appointment again.",
+          slots: open,
+        };
+      }
       if (slot.status !== "open") return { booked: false, error: "That time was just taken. Offer the next open time." };
+      if (new Date(slot.startsAt).getTime() <= Date.now()) return { booked: false, error: "That time has passed. Call list_slots and offer a later one." };
       const name = s(args.name);
       if (!name) return { booked: false, error: "Ask for the caller's name first." };
       const contact = s(args.contact) || conversation.callerContact || "";
       bookSlot(slot, { name, contact, reason: s(args.reason), conversationId: conversation.id });
       const when = spokenTime(slot.startsAt, zone);
+      conversation.offeredSlots = undefined;
       conversation.callerName = conversation.callerName || name;
       conversation.callerContact = conversation.callerContact || contact || null;
       setOutcome(conversation, "appointment", when, `Booked ${name} for ${when}.`);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ComponentType } from "react";
+import { useState, type ComponentType } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Mail, MessageCircle } from "lucide-react";
@@ -36,10 +36,11 @@ function ChannelCard({
 }) {
   const [config, setConfig] = useState<Record<string, string>>(existing?.config ?? {});
   const [to, setTo] = useState("");
-  useEffect(() => {
+  const [loadedId, setLoadedId] = useState(existing?.id);
+  if (existing?.id !== loadedId) {
+    setLoadedId(existing?.id);
     if (existing?.config) setConfig(existing.config);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [existing?.id]);
+  }
   const save = useMutation({
     mutationFn: () => api.tools.saveMessaging({ id: existing?.id, kind, label: title, config }),
     onSuccess: () => {

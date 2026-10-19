@@ -17,11 +17,14 @@ type Provider = {
   extra?: Record<string, string>;
 };
 
-const GOOGLE_SCOPES: Record<string, string[]> = {
-  gmail: ["https://www.googleapis.com/auth/gmail.send", ...(getSetting("GOOGLE_ENABLE_GMAIL_READ") === "true" ? ["https://www.googleapis.com/auth/gmail.readonly"] : [])],
-  gcal: ["https://www.googleapis.com/auth/calendar.events"],
-  gsheets: ["https://www.googleapis.com/auth/spreadsheets"],
-};
+// Read per request: settings live in the store, which isn't loaded at build time, and an
+// operator can change GOOGLE_ENABLE_GMAIL_READ without a restart.
+const googleScopes = (app: string): string[] =>
+  ({
+    gmail: ["https://www.googleapis.com/auth/gmail.send", ...(getSetting("GOOGLE_ENABLE_GMAIL_READ") === "true" ? ["https://www.googleapis.com/auth/gmail.readonly"] : [])],
+    gcal: ["https://www.googleapis.com/auth/calendar.events"],
+    gsheets: ["https://www.googleapis.com/auth/spreadsheets"],
+  })[app] ?? [];
 
 const PROVIDERS: Record<string, Provider> = {
   google: {
@@ -30,7 +33,7 @@ const PROVIDERS: Record<string, Provider> = {
     clientSecret: () => getSetting("GOOGLE_CONNECTOR_CLIENT_SECRET"),
     authorize: () => "https://accounts.google.com/o/oauth2/v2/auth",
     token: () => "https://oauth2.googleapis.com/token",
-    scopes: (app) => ["openid", "email", ...(GOOGLE_SCOPES[app] ?? [])],
+    scopes: (app) => ["openid", "email", ...googleScopes(app)],
     extra: { access_type: "offline", prompt: "consent", include_granted_scopes: "true" },
   },
   microsoft: {

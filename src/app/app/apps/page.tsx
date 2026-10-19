@@ -56,7 +56,7 @@ export default function AppsPage() {
 
   const start = (key: string) => {
     if (usesOauth(key)) {
-      window.location.href = OAUTH_START[key];
+      window.location.assign(OAUTH_START[key]);
       return;
     }
     setConnecting(key);

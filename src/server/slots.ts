@@ -76,7 +76,11 @@ export function regenerateSlots(userId: string, hours: AgentHours) {
     return { created: 0, removed: before, orphanedBookings: 0 };
   }
   const booked = data.slots.filter((s) => s.agentId === hours.agentId && s.status === "booked");
-  const taken = new Set(booked.map((s) => s.startsAt));
+  // Every time still in the diary is taken: bookings, hand-opened times, and times blocked by
+  // hand (cancelled before anyone booked them). A cancelled booking frees its time again.
+  const taken = new Set(
+    data.slots.filter((s) => s.agentId === hours.agentId && !(s.status === "cancelled" && s.bookedAt)).map((s) => s.startsAt),
+  );
   const today = zonedToday(zone);
   const fresh: Slot[] = [];
   const created = nowIso();

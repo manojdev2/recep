@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Wordmark } from "@/components/mark";
 import { ThemeToggle } from "@/components/theme";
@@ -28,31 +28,33 @@ const DEMO_ROLES = [
   },
 ];
 
+const noopSubscribe = () => () => {};
+
 export default function LoginPage() {
   const { user, isPending } = useSession();
   const router = useRouter();
-  const [mode, setMode] = useState<"in" | "up">("in");
+  const [modeChoice, setMode] = useState<"in" | "up">("in");
   const brandingQuery = useQuery({ queryKey: ["branding"], queryFn: () => api.site.branding() });
   const signupsOpen = brandingQuery.data?.signupsOpen ?? true;
   const demoMode = brandingQuery.data?.demoMode ?? false;
   const providers = brandingQuery.data?.socialProviders ?? [];
 
-  useEffect(() => {
-    if (!signupsOpen) setMode("in");
-  }, [signupsOpen]);
+  const mode = signupsOpen ? modeChoice : "in";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  // undefined until something sets it: until then, show the error a failed social sign-in sent back.
+  const [errorState, setError] = useState<string | null | undefined>(undefined);
+  const urlError = useSyncExternalStore(
+    noopSubscribe,
+    () => new URLSearchParams(window.location.search).get("error"),
+    () => null,
+  );
+  const error = errorState === undefined ? urlError : errorState;
   const [pending, setPending] = useState(false);
   const [demoPending, setDemoPending] = useState<string | null>(null);
 
-  // A social sign-in that failed comes back as /login?error=…
-  useEffect(() => {
-    const message = new URLSearchParams(window.location.search).get("error");
-    if (message) setError(message);
-  }, []);
 
   async function startDemo(role: string) {
     setError(null);
@@ -85,7 +87,9 @@ export default function LoginPage() {
     try {
       if (mode === "up") await signUp(name.trim() || email.split("@")[0] || "Builder", email, password);
       else await signIn(email, password);
-      window.location.href = "/app";
+      // A full load, so every cached query restarts under the new session.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/app");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
