@@ -158,6 +158,29 @@ export function bookSlot(
   return slot;
 }
 
+/**
+ * Cancel a booking. The record stays (cancelled); if the time is still ahead, a fresh open
+ * time takes its place in the diary.
+ */
+export function cancelBooking(slot: Slot) {
+  if (slot.status === "booked" && new Date(slot.startsAt).getTime() > Date.now()) {
+    db().slots.push({
+      ...slot,
+      id: newId("slot"),
+      status: "open",
+      bookedName: "",
+      bookedContact: "",
+      reason: "",
+      confirmation: "",
+      conversationId: null,
+      bookedAt: null,
+      createdAt: nowIso(),
+    });
+  }
+  slot.status = "cancelled";
+  save();
+}
+
 /** Top up every diary that has run dry (fresh installs, or a process that ran past the horizon). */
 export function refreshDiaries() {
   const data = db();

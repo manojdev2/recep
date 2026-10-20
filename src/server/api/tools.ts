@@ -7,7 +7,7 @@ import { emit, WEBHOOK_EVENTS } from "../events";
 import { allow, clientIp } from "../rate-limit";
 import { mutation, publicMutation, publicQuery, query, RpcError } from "../rpc";
 import { numberSetting } from "../settings";
-import { slotLabel, workspaceZone, zonedInstant } from "../slots";
+import { cancelBooking, slotLabel, workspaceZone, zonedInstant } from "../slots";
 import type { Form, FormField, LeadStatus, MessagingChannel } from "../types";
 
 function formRow(f: Form) {
@@ -270,23 +270,11 @@ export const tools = {
         throw new RpcError("That time is already in the diary.");
       }
       Object.assign(s, { bookedName: "", bookedContact: "", reason: "", confirmation: "", conversationId: null, bookedAt: null });
-    } else if (s.status === "booked" && new Date(s.startsAt).getTime() > Date.now()) {
-      // The booking record stays (cancelled); a fresh open time takes its place in the diary.
-      data.slots.push({
-        ...s,
-        id: newId("slot"),
-        status: "open",
-        bookedName: "",
-        bookedContact: "",
-        reason: "",
-        confirmation: "",
-        conversationId: null,
-        bookedAt: null,
-        createdAt: nowIso(),
-      });
+      s.status = "open";
+      save();
+    } else {
+      cancelBooking(s);
     }
-    s.status = input.status;
-    save();
     return { ok: true };
   }),
 

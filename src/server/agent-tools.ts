@@ -6,7 +6,7 @@ import { unseal } from "./crypto";
 import { db, nowIso, save } from "./db";
 import { emit } from "./events";
 import { searchPassages } from "./extract";
-import { bookSlot, openSlots, spokenTime, workspaceZone, zonedInstant } from "./slots";
+import { bookSlot, cancelBooking, openSlots, spokenTime, workspaceZone, zonedInstant } from "./slots";
 import type { Agent, Conversation } from "./types";
 
 const str = { type: "string" } as const;
@@ -14,16 +14,21 @@ const str = { type: "string" } as const;
 const SCHEMAS: Record<string, { description?: string; properties: Record<string, unknown>; required?: string[] }> = {
   list_slots: {
     properties: {
-      after: { type: "string", description: "Optional ISO date or day the caller prefers, e.g. 2026-10-14 or 'Wednesday'." },
+      after: {
+        type: "string",
+        description:
+          "Optional. Only times from this point on. Pass the caller's day and time in their own words — 'Saturday 4:30pm', 'tomorrow at 11', 'the 27th around 3pm', 'next Friday' — and the system works out the date. Don't convert it to a date yourself.",
+      },
       limit: { type: "number", description: "How many open times to return (default 6)." },
     },
   },
   book_appointment: {
     properties: {
-      slot_id: { type: "string", description: "The exact id (like slot_ab12…) of an open time from list_slots — not its position or the time." },
+      slot_id: { type: "string", description: "The exact id of an open time, copied from a list_slots result — not its position, the time, or a made-up id." },
       name: { type: "string", description: "Caller's full name." },
       contact: { type: "string", description: "Callback phone number or email." },
       reason: { type: "string", description: "What the visit is for." },
+      reschedule: { type: "boolean", description: "True only when the caller asked to move the booking they already made in this conversation to this time." },
     },
     required: ["slot_id", "name"],
   },
@@ -61,7 +66,8 @@ export function toolSpecs(agentId: string): ToolSpec[] {
     .filter((x): x is ToolSpec => x !== null);
 }
 
-export type ToolContext = { agent: Agent; conversation: Conversation };
+/** `callerText`: the caller's latest words, when the channel has them as text. */
+export type ToolContext = { agent: Agent; conversation: Conversation; callerText?: string };
 
 function setOutcome(c: Conversation, kind: NonNullable<Conversation["outcome"]>["kind"], title: string, summary: string) {
   c.outcome = { kind, title, summary };
@@ -71,25 +77,98 @@ function setOutcome(c: Conversation, kind: NonNullable<Conversation["outcome"]>[
 
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
-/** Start of the day a caller asked for ("Wednesday", "tomorrow", or an ISO date), in the workspace zone. */
-function dayFilter(after: string | undefined, zone: string) {
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const MONTH = "(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?";
+
+/**
+ * Minutes past midnight for a clock time in free text ("16:30", "4:30pm", "3 p.m.", "around 3", "noon").
+ * `strict` (a caller's whole sentence): a bare number only counts after "at", "around"… — "a table for 4" is not 4pm.
+ */
+function clockMinutes(text: string, strict = false): number | null {
+  if (/\bnoon\b/.test(text)) return 720;
+  const t = strict
+    ? /(?:\b(?:at|around|about|after|before|by|from)\s+)?\b(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?(?![\d:])/g
+    : /\b(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?(?![\d:])/g;
+  let match: RegExpExecArray | null = null;
+  for (let x = t.exec(text); x; x = t.exec(text)) {
+    if (!strict || x[2] || x[3] || /^(at|around|about|after|before|by|from)\s/.test(x[0])) {
+      match = x;
+      break;
+    }
+  }
+  if (match) {
+    let h = Number(match[1]);
+    const min = Number(match[2] ?? 0);
+    const mer = match[3]?.[0];
+    if (h > 23 || min > 59) return null;
+    if (mer === "p" && h < 12) h += 12;
+    else if (mer === "a" && h === 12) h = 0;
+    // No am/pm: business talk, so "at 3" is 3pm, and so is "4" in the afternoon or evening.
+    else if (!mer && h < 12 && (h < 8 || /afternoon|evening|tonight/.test(text))) h += 12;
+    return h * 60 + min;
+  }
+  if (/afternoon/.test(text)) return 720;
+  if (/evening|tonight/.test(text)) return 1020;
+  return null;
+}
+
+/**
+ * Where to start looking for times a caller asked for, in the workspace zone. Takes an ISO date or
+ * date-time, or the caller's words ("Saturday 4:30pm", "tomorrow at 11", "the 27th around 3",
+ * "Oct 30"), so the model never has to do date arithmetic. A slot starting exactly then is included.
+ */
+function dayFilter(after: string | undefined, zone: string, strict = false): { from: Date; exact: Date | null } | undefined {
   if (!after) return undefined;
   const tz = zone || "UTC";
-  const iso = /^\d{4}-\d{2}-\d{2}/.test(after) ? after.slice(0, 10).split("-").map(Number) : null;
-  if (iso) return zonedInstant(iso[0], iso[1] - 1, iso[2], 0, tz);
-  const now = new Date();
-  const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", weekday: "long" }).formatToParts(now);
+  // `exact` is the time the caller named, if they named one.
+  const at = (y: number, m: number, d: number, minutes: number | null) => {
+    const t = zonedInstant(y, m, d, minutes ?? 0, tz);
+    return { from: new Date(t.getTime() - 60_000), exact: minutes === null ? null : t };
+  };
+  // An ISO time is the business's wall clock; any offset is ignored.
+  const iso = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{1,2}):(\d{2}))?/.exec(after);
+  if (iso) return at(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]), iso[4] ? Number(iso[4]) * 60 + Number(iso[5]) : null);
+
+  const text = after.toLowerCase();
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", weekday: "long" }).formatToParts(new Date());
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
-  const today = WEEKDAYS.indexOf(get("weekday").toLowerCase());
-  let delta = -1;
-  if (/tomorrow/i.test(after)) delta = 1;
-  else if (/today/i.test(after)) delta = 0;
-  else {
-    const idx = WEEKDAYS.findIndex((d) => after.toLowerCase().includes(d));
-    if (idx >= 0) delta = (idx - today + 7) % 7;
+  const y = Number(get("year"));
+  const m = Number(get("month")) - 1;
+  const d = Number(get("day"));
+  let day: [number, number, number] | null = null;
+  let rest = text;
+
+  const monthFirst = new RegExp(`\\b${MONTH}\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b`).exec(text);
+  const dayFirst = new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MONTH}`).exec(text);
+  const ordinal = /\b(\d{1,2})(st|nd|rd|th)\b/.exec(text);
+  if (monthFirst || dayFirst) {
+    const month = MONTHS.indexOf((monthFirst ? monthFirst[1] : dayFirst![2]).slice(0, 3));
+    const date = Number(monthFirst ? monthFirst[2] : dayFirst![1]);
+    // A date already past this year means next year.
+    day = month < m || (month === m && date < d) ? [y + 1, month, date] : [y, month, date];
+    rest = text.replace((monthFirst ?? dayFirst)![0], " ");
+  } else if (ordinal) {
+    const date = Number(ordinal[1]);
+    day = date < d ? [y, m + 1, date] : [y, m, date];
+    rest = text.replace(ordinal[0], " ");
+  } else if (/tomorrow/.test(text)) {
+    day = [y, m, d + 1];
+  } else if (/today|tonight/.test(text)) {
+    day = [y, m, d];
+  } else {
+    const idx = WEEKDAYS.findIndex((w) => text.includes(w) || new RegExp(`\\b${w.slice(0, 3)}\\b`).test(text));
+    if (idx >= 0) {
+      let delta = (idx - WEEKDAYS.indexOf(get("weekday").toLowerCase()) + 7) % 7;
+      if (delta === 0 && /\bnext\b/.test(text)) delta = 7;
+      // "a week from Thursday", "Thursday week"
+      if (/week (from|on)|day week\b/.test(text)) delta += 7;
+      day = [y, m, d + delta];
+    }
   }
-  if (delta < 0) return undefined;
-  return zonedInstant(Number(get("year")), Number(get("month")) - 1, Number(get("day")) + delta, 0, tz);
+  const minutes = clockMinutes(rest, strict);
+  if (!day && minutes === null) return undefined;
+  const [yy, mm, dd] = day ?? [y, m, d];
+  return at(yy, mm, dd, minutes);
 }
 
 export async function runTool(name: string, args: Record<string, unknown>, ctx: ToolContext): Promise<Record<string, unknown>> {
@@ -101,15 +180,35 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
   switch (name) {
     case "list_slots": {
       if (!zone) return { slots: [], note: "Opening hours are not set, so no times can be offered. Take a name and number for a callback." };
-      const after = dayFilter(s(args.after) || undefined, zone);
+      // Models sometimes rename the argument; a dropped filter would offer the wrong day.
+      let wanted = dayFilter(s(args.after ?? args.start ?? args.from ?? args.date ?? args.day) || undefined, zone);
+      // Models often pass nothing, "now", or the caller's current booking instead of the time the
+      // caller just named. When the caller's own words name a day and time, they win (unless the
+      // caller is ruling it out: "I can't do 2pm"); a time that is now or past only means "from now on".
+      const soon = (t: Date | null | undefined) => !!t && t.getTime() < Date.now() + 15 * 60_000;
+      const said = ctx.callerText ? dayFilter(ctx.callerText, zone, true) : undefined;
+      const callerNamed = said?.exact && !soon(said.exact) && !/\b(can'?t|cannot|not|no|isn'?t|won'?t)\b/i.test(ctx.callerText ?? "");
+      if (callerNamed && said.exact!.getTime() !== wanted?.exact?.getTime()) wanted = said;
+      else if (!wanted || soon(wanted.exact)) {
+        if (said && !soon(said.exact) && said.from.getTime() > Date.now() - 864e5) wanted = said;
+        else if (wanted) wanted = { from: wanted.from, exact: null };
+      }
       const limit = Math.min(10, Math.max(1, Number(args.limit) || 6));
-      let slots = openSlots(agent.id, limit, after);
-      if (!slots.length && after) slots = openSlots(agent.id, limit);
+      let slots = openSlots(agent.id, limit, wanted?.from);
+      if (!slots.length && wanted) slots = openSlots(agent.id, limit);
       if (!slots.length) return { slots: [], note: "No open times in the diary. Offer to take a message and a callback number." };
       const offered = slots.map((x) => ({ id: x.id, when: spokenTime(x.startsAt, zone) }));
       conversation.offeredSlots = offered;
       save();
-      return { timezone: zone, slots: offered };
+      // Say plainly whether the time the caller named is free; models misread the bare list.
+      const exact = wanted?.exact;
+      const hit = exact ? slots.find((x) => new Date(x.startsAt).getTime() === exact.getTime()) : undefined;
+      const requested = !exact
+        ? undefined
+        : hit
+          ? `${spokenTime(hit.startsAt, zone)} is open (id ${hit.id}). Offer it.`
+          : `${spokenTime(exact.toISOString(), zone)} is not open. Offer the nearest times below.`;
+      return { timezone: zone, ...(requested ? { requested } : {}), slots: offered };
     }
     case "book_appointment": {
       const id = s(args.slot_id);
@@ -122,14 +221,30 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
         const open = openSlots(agent.id, 6).map((x) => ({ id: x.id, when: spokenTime(x.startsAt, zone) }));
         return {
           booked: false,
-          error: "slot_id must be one of the ids below, not a number or a time. Pick the one the caller chose and call book_appointment again.",
+          error:
+            "slot_id must be an id from list_slots, not a number or a time. If the caller's time is below, use its id. If not, call list_slots with after set to the caller's date and time (e.g. 2026-10-20T13:00) before saying it isn't available.",
           slots: open,
         };
+      }
+      // A repeated call for the time this caller already has: answer again, don't book twice.
+      if (slot.status === "booked" && slot.conversationId === conversation.id) {
+        return { booked: true, when: spokenTime(slot.startsAt, zone), name: slot.bookedName, confirmation: slot.confirmation, note: "Already booked earlier in this conversation." };
       }
       if (slot.status !== "open") return { booked: false, error: "That time was just taken. Offer the next open time." };
       if (new Date(slot.startsAt).getTime() <= Date.now()) return { booked: false, error: "That time has passed. Call list_slots and offer a later one." };
       const name = s(args.name);
       if (!name) return { booked: false, error: "Ask for the caller's name first." };
+      // One booking per conversation: a second one is a move, and only when the caller asked for it.
+      const previous = data.slots.find(
+        (x) => x.agentId === agent.id && x.conversationId === conversation.id && x.status === "booked" && new Date(x.startsAt).getTime() > Date.now(),
+      );
+      if (previous && args.reschedule !== true) {
+        return {
+          booked: false,
+          error: `This caller is already booked for ${spokenTime(previous.startsAt, zone)} (confirmation ${previous.confirmation}). Don't book again. If they want to move it, confirm, then call book_appointment with reschedule: true.`,
+        };
+      }
+      if (previous) cancelBooking(previous);
       const contact = s(args.contact) || conversation.callerContact || "";
       bookSlot(slot, { name, contact, reason: s(args.reason), conversationId: conversation.id });
       const when = spokenTime(slot.startsAt, zone);

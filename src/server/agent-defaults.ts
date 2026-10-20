@@ -87,10 +87,14 @@ export function suggestedWindows(templateKey: string | null | undefined) {
         { weekday, startMin: 480, endMin: 720 },
         { weekday, startMin: 780, endMin: 1080 },
       ]);
+    // Keep these in step with the hours the template's script tells callers.
     case "salon":
-      return days([2, 3, 4, 5, 6], 600, 1140);
+      return days([2, 3, 4, 5, 6], 540, 1140);
     case "restaurant":
-      return days([1, 2, 3, 4, 5, 6, 0], 720, 1320);
+      return [2, 3, 4, 5, 6, 0].flatMap((weekday) => [
+        { weekday, startMin: 690, endMin: 870 },
+        { weekday, startMin: 1050, endMin: 1320 },
+      ]);
     case "gym":
       return days([1, 2, 3, 4, 5], 360, 1320).concat(days([6, 0], 480, 1200));
     case "after_hours":
