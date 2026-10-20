@@ -1,5 +1,5 @@
 /**
- * Reception AI widget launcher.
+ * Azentoo widget launcher.
  *
  * Embedding used to be a raw <iframe> snippet: always mounted, always the same
  * size, no launcher, and no way for the owner to say which sites may load their
@@ -26,7 +26,7 @@
 
   var agentId = current.getAttribute("data-agent");
   if (!agentId) {
-    console.error('[aether] widget.js needs data-agent="<agent id>"');
+    console.error('[azentoo] widget.js needs data-agent="<agent id>"');
     return;
   }
 
@@ -37,10 +37,10 @@
   var label = current.getAttribute("data-label") || "Chat with us";
   var startOpen = current.getAttribute("data-open") === "true";
 
-  if (document.getElementById("aether-widget-root")) return; // already mounted
+  if (document.getElementById("azentoo-widget-root")) return; // already mounted
 
   var root = document.createElement("div");
-  root.id = "aether-widget-root";
+  root.id = "azentoo-widget-root";
   root.style.cssText = [
     "position:fixed",
     "bottom:20px",
@@ -139,7 +139,7 @@
   // The widget page asks to be closed from its own header button.
   window.addEventListener("message", function (e) {
     if (e.origin !== origin) return;
-    if (e.data && e.data.source === "aether-widget" && e.data.type === "close") setOpen(false);
+    if (e.data && e.data.source === "azentoo-widget" && e.data.type === "close") setOpen(false);
   });
 
   root.appendChild(panel);

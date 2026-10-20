@@ -18,7 +18,7 @@ export function Mark({ className }: { className?: string }) {
   );
 }
 
-export function Wordmark({ className, name = "Reception AI" }: { className?: string; name?: string }) {
+export function Wordmark({ className, name = "Azentoo" }: { className?: string; name?: string }) {
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
       <Mark />

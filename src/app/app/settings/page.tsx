@@ -127,7 +127,7 @@ function Export() {
       const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
       const a = document.createElement("a");
       a.href = url;
-      a.download = `aether-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `azentoo-export-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
       toast.success("Export downloaded.");

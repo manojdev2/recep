@@ -214,6 +214,6 @@ app.prepare().then(() => {
   });
 
   server.listen(port, host, () => {
-    console.log(`> Reception AI on http://localhost:${port} (${dev ? "development" : "production"}) — voice relay on /api/voice/stream`);
+    console.log(`> Azentoo on http://localhost:${port} (${dev ? "development" : "production"}) — voice relay on /api/voice/stream`);
   });
 });

@@ -58,7 +58,7 @@ function showPage(id) {
     el.classList.toggle("active", el.dataset.nav === id);
   });
   const title = PAGES.find(([pid]) => pid === id)?.[1] ?? "Docs";
-  document.title = `${title} · Reception AI Docs`;
+  document.title = `${title} · Azentoo Docs`;
   const crumb = document.getElementById("crumb");
   if (crumb) crumb.textContent = title;
   window.scrollTo({

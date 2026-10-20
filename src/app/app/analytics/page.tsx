@@ -54,7 +54,7 @@ export default function AnalyticsPage() {
     const url = URL.createObjectURL(new Blob([`day,conversations,resolved\n${rows}\n`], { type: "text/csv" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `aether-analytics-${days}d.csv`;
+    a.download = `azentoo-analytics-${days}d.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Exported");

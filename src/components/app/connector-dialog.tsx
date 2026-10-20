@@ -82,7 +82,7 @@ export function ConnectorDialog({
               </Button>
               {error ? <p className="text-sm text-danger">{error}</p> : null}
               <p className="text-xs leading-relaxed text-subtle">
-                Tokens stay on this workspace and are used only when this agent calls the provider. Reception AI verifies the credential against the live
+                Tokens stay on this workspace and are used only when this agent calls the provider. Azentoo verifies the credential against the live
                 API before saving.
               </p>
             </form>

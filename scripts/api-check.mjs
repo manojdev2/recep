@@ -235,7 +235,7 @@ await new Promise((res) => setTimeout(res, 2500));
 await fetch(B + "/api/jobs/run", { method: "POST" });
 await new Promise((res) => setTimeout(res, 1500));
 ok("webhooks: deliveries received", hooks.length >= 1, `received ${hooks.length}`);
-ok("webhooks: signed with x-reception-signature", hooks.some((h) => h.headers["x-reception-signature"]), JSON.stringify(hooks[0]?.headers || {}).slice(0, 300));
+ok("webhooks: signed with x-azentoo-signature", hooks.some((h) => h.headers["x-azentoo-signature"]), JSON.stringify(hooks[0]?.headers || {}).slice(0, 300));
 ok("webhooks: form.submitted event delivered", hooks.some((h) => h.body.includes("form.submitted")), hooks.map((h) => h.body.slice(0, 60)).join(" | "));
 if (hookId) {
   x = await u.call("tools", "removeWebhook", hookId);
@@ -286,7 +286,7 @@ ok("auth: change password", r.status === 200, JSON.stringify(r.body));
 
 // ---------- admin (uses the seeded demo admin, which signs in outside production) ----------
 const a = client();
-r = await a.req("/api/auth/sign-in", { method: "POST", body: JSON.stringify({ email: "demo-admin@reception-ai.app", password: "demo1234" }) });
+r = await a.req("/api/auth/sign-in", { method: "POST", body: JSON.stringify({ email: "demo-admin@azentoo.app", password: "demo1234" }) });
 ok("admin: sign in", r.status === 200, JSON.stringify(r.body));
 x = await a.call("admin", "tenants");
 const me = x.result?.find((t) => t.email === email);

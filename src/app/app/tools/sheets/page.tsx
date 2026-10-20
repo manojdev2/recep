@@ -20,7 +20,7 @@ export default function SheetsPage() {
   const apps = useQuery({ queryKey: ["apps"], queryFn: () => api.connectors.list() });
   const [connecting, setConnecting] = useState(false);
   const [spreadsheetId, setSpreadsheetId] = useState("");
-  const [sheetName, setSheetName] = useState("Reception AI");
+  const [sheetName, setSheetName] = useState("Azentoo");
   const [appointments, setAppointments] = useState(true);
   const [forms, setForms] = useState(true);
   const [leads, setLeads] = useState(true);
@@ -30,7 +30,7 @@ export default function SheetsPage() {
   if (dest.data && dest.data !== loaded) {
     setLoaded(dest.data);
     setSpreadsheetId(dest.data.spreadsheet_id);
-    setSheetName(dest.data.sheet_name || "Reception AI");
+    setSheetName(dest.data.sheet_name || "Azentoo");
     setAppointments(!!dest.data.push_appointments);
     setForms(!!dest.data.push_forms);
     setLeads(!!dest.data.push_leads);

@@ -50,7 +50,7 @@ function ChannelCard({
     onError: (e: Error) => toast.error(e.message),
   });
   const test = useMutation({
-    mutationFn: () => api.tools.testMessaging({ id: existing?.id ?? "", to, body: "Hello from Reception AI." }),
+    mutationFn: () => api.tools.testMessaging({ id: existing?.id ?? "", to, body: "Hello from Azentoo." }),
     onSuccess: () => toast.success("Sent"),
     onError: (e: Error) => toast.error(e.message),
   });

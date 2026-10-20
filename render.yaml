@@ -1,7 +1,7 @@
 # Backend for the split deploy (README → Deploying): the whole app as one always-on Node process.
 services:
   - type: web
-    name: reception-api
+    name: azentoo-api
     runtime: node
     plan: starter
     buildCommand: npm ci && npm run build
@@ -15,10 +15,10 @@ services:
       # Committed Supabase CA; paste the PEM instead if you use another provider.
       - key: DATABASE_CA_CERT
         value: ./prod-ca-2021.crt
-      # The Vercel URL, e.g. https://reception.vercel.app
+      # The Vercel URL, e.g. https://azentoo.vercel.app
       - key: APP_URL
         sync: false
-      # This service's own URL, e.g. https://reception-api.onrender.com
+      # This service's own URL, e.g. https://azentoo-api.onrender.com
       - key: VOICE_STREAM_ORIGIN
         sync: false
       - key: DATABASE_URL

@@ -19,7 +19,7 @@ export default function WidgetPage() {
   const inline = useMemo(
     () =>
       agentId
-        ? `<iframe src="${origin}/w/${agentId}" title="Reception AI" style="width:100%;height:640px;border:0;border-radius:16px" allow="microphone"></iframe>`
+        ? `<iframe src="${origin}/w/${agentId}" title="Azentoo" style="width:100%;height:640px;border:0;border-radius:16px" allow="microphone"></iframe>`
         : "",
     [agentId, origin],
   );

@@ -183,7 +183,7 @@ function AddNumberDialog({
               {provider === "twilio" ? (
                 <label className="flex items-center justify-between gap-4 rounded-xl bg-raised px-4 py-3">
                   <span>
-                    <span className="block text-sm font-medium">Point this number at Reception AI</span>
+                    <span className="block text-sm font-medium">Point this number at Azentoo</span>
                     <span className="mt-0.5 block text-xs text-muted">
                       Sets the Voice webhook in your Twilio account so calls reach this app. Without it the number will not ring here.
                     </span>
@@ -341,9 +341,9 @@ export default function PhonePage() {
                       variant="ghost"
                       disabled={point.isPending}
                       onClick={() => point.mutate(n.id)}
-                      title={`Point this number's voice webhook at Reception AI in ${providerName(n.provider)}`}
+                      title={`Point this number's voice webhook at Azentoo in ${providerName(n.provider)}`}
                     >
-                      {point.isPending ? "Pointing…" : "Point at Reception AI"}
+                      {point.isPending ? "Pointing…" : "Point at Azentoo"}
                     </Button>
                   ) : null}
                   <Button size="sm" variant="ghost" className="text-muted hover:text-danger" onClick={() => setRemoving(n.id)}>

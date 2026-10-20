@@ -56,7 +56,7 @@ export async function claimAdmin(user: User, origin = appUrl()): Promise<"grante
   const link = `${base}/api/admin/confirm?token=${token}`;
   await sendMail({
     to: user.email,
-    subject: "Confirm your Reception AI admin access",
+    subject: "Confirm your Azentoo admin access",
     logPrefix: "[admin]",
     text: `Open this link in the browser where you are signed in as ${user.email} to become a platform admin:\n\n${link}\n\nIt works for ${LINK_MINUTES} minutes. If you did not ask for this, ignore this email.`,
   });
