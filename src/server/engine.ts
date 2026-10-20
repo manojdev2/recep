@@ -5,7 +5,7 @@ import { chatComplete, speak, type ChatMessage, type ToolCall } from "./ai";
 import { runTool, toolSpecs } from "./agent-tools";
 import { db, nowIso, save } from "./db";
 import { searchPassages } from "./extract";
-import { workspaceZone } from "./slots";
+import { spokenTime, workspaceZone } from "./slots";
 import type { Agent, Conversation, Workflow } from "./types";
 import { assertMinutes, meter } from "./usage";
 
@@ -66,6 +66,13 @@ function describeWorkflow(w: Workflow) {
 export function systemPrompt(agent: Agent, passages: { title: string; text: string }[]) {
   const zone = workspaceZone(agent.userId) || "UTC";
   const now = new Date().toLocaleString("en-US", { timeZone: zone, dateStyle: "full", timeStyle: "short" });
+  // Models are unreliable at turning "Thursday" into a date; spell out the next two weeks (the booking horizon).
+  const [y, m, d] = new Date().toLocaleDateString("en-CA", { timeZone: zone }).split("-").map(Number);
+  const week = Array.from({ length: 14 }, (_, i) => {
+    const day = new Date(Date.UTC(y, m - 1, d + i, 12));
+    const name = day.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long" });
+    return `${name}${i === 0 ? " (today)" : i === 1 ? " (tomorrow)" : ""} = ${day.toISOString().slice(0, 10)}`;
+  }).join(", ");
   const lang = LANGUAGES.find((l) => l.id === agent.language)?.label ?? "English";
   const tools = db()
     .agentTools.filter((t) => t.agentId === agent.id && t.enabled)
@@ -74,12 +81,16 @@ export function systemPrompt(agent: Agent, passages: { title: string; text: stri
   return [
     agent.systemPrompt || `You are the receptionist for ${agent.name}. Be warm, brief and helpful.`,
     "",
-    `It is ${now} (${zone}). Reply in ${lang} unless the caller uses another language.`,
+    `It is ${now} (${zone}). Upcoming dates: ${week}. Reply in ${lang} unless the caller uses another language.`,
     "Keep replies short and spoken-sounding: one to three sentences, one question at a time. No lists or markdown.",
     "Only state facts about the business that appear in these instructions or the knowledge below. If you do not know, say so and offer to take a message.",
     "Never claim to have booked, saved, or sent anything unless a tool result confirms it.",
     agent.guardrails ? `\nThings you must never do:\n${agent.guardrails}` : "",
     tools.length ? `\nYou can use these tools: ${tools.join(", ")}.` : "",
+    // Without this, models answer "that time is taken" or "we're closed" from memory.
+    db().agentTools.some((t) => t.agentId === agent.id && t.enabled && t.toolKey === "list_slots")
+      ? "Whenever a caller asks about or picks a day or time, call list_slots for it in that same turn before answering. Never say a time is open, taken or closed without a list_slots result from this turn."
+      : "",
     agent.brain === "workflow" ? describeWorkflow(agent.workflow) : "",
     passages.length
       ? `\nBusiness knowledge (answer from this):\n${passages.map((p) => `### ${p.title}\n${p.text}`).join("\n\n")}`
@@ -107,12 +118,12 @@ function offlineReply(agent: Agent, question: string, passages: { title: string;
 }
 
 /** Rehearsals read the real diary and knowledge but never write bookings, leads or tickets. */
-async function practiceTool(name: string, args: Record<string, unknown>, agent: Agent, conversation: Conversation) {
+async function practiceTool(name: string, args: Record<string, unknown>, agent: Agent, conversation: Conversation, callerText: string) {
   switch (name) {
     case "list_slots":
     case "search_catalog":
     case "lookup_order":
-      return runTool(name, args, { agent, conversation });
+      return runTool(name, args, { agent, conversation, callerText });
     case "book_appointment":
       return { booked: true, practice: true, name: args.name ?? "", when: "the time you offered", confirmation: "PRACTICE" };
     case "capture_lead":
@@ -181,6 +192,9 @@ export async function runTurn(input: TurnInput): Promise<TurnResult> {
     .map((m) => m.content)
     .join(" ");
   const passages = searchPassages(docs, recentUser, 4);
+  const booking = data.slots.find(
+    (s) => s.agentId === agent.id && s.conversationId === conversation.id && s.status === "booked" && new Date(s.startsAt).getTime() > Date.now(),
+  );
 
   const messages: ChatMessage[] = [
     { role: "system", content: systemPrompt(agent, passages) },
@@ -192,6 +206,15 @@ export async function runTurn(input: TurnInput): Promise<TurnResult> {
             content: `Times offered earlier in this conversation (use these ids with book_appointment): ${conversation.offeredSlots
               .map((o) => `${o.id} = ${o.when}`)
               .join("; ")}`,
+          },
+        ]
+      : []),
+    // Nor is the booking itself: without this the model re-books on every "yes".
+    ...(booking
+      ? [
+          {
+            role: "system" as const,
+            content: `This caller is already booked for ${spokenTime(booking.startsAt, workspaceZone(agent.userId))} (confirmation ${booking.confirmation}). Don't book again. Only if they ask to change it: call list_slots with after set to the new date and time, then book_appointment with that id and reschedule: true.`,
           },
         ]
       : []),
@@ -223,8 +246,8 @@ export async function runTurn(input: TurnInput): Promise<TurnResult> {
           args = JSON.parse(call.function.arguments || "{}");
         } catch {}
         const result = persist
-          ? await runTool(call.function.name, args, { agent, conversation })
-          : await practiceTool(call.function.name, args, agent, conversation);
+          ? await runTool(call.function.name, args, { agent, conversation, callerText: last.content })
+          : await practiceTool(call.function.name, args, agent, conversation, last.content);
         const json = JSON.stringify(result);
         traces.push({ name: call.function.name, result: json });
         messages.push({ role: "tool", tool_call_id: call.id, content: json });
