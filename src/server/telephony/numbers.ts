@@ -117,7 +117,7 @@ export async function plivoConfigure(authId: string, token: string, e164: string
   if (/localhost|127\.0\.0\.1/.test(base)) return { configured: false, error: "APP_URL is a local address, so Plivo cannot reach it." };
   const app = await plivoFetch(authId, token, "/Application/", {
     method: "POST",
-    body: JSON.stringify({ app_name: `Reception AI ${e164}`, answer_url: `${base}/api/voice/plivo`, answer_method: "POST" }),
+    body: JSON.stringify({ app_name: `Azentoo ${e164}`, answer_url: `${base}/api/voice/plivo`, answer_method: "POST" }),
   });
   if (!app.ok) return { configured: false, error: `Plivo answered ${app.status} creating the application.` };
   const appId = (await app.json()).app_id;
@@ -153,7 +153,7 @@ export async function importNumber(
       provider: "aether-sip",
       smsEnabled: false,
       agentId: null,
-      sipUri: `sip:${id}@sip.reception.test`,
+      sipUri: `sip:${id}@sip.azentoo.test`,
       status: "active",
       secret: null,
       providerSid: null,

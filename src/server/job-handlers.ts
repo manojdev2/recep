@@ -17,9 +17,9 @@ registerJob("webhook.deliver", async (p) => {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "user-agent": "ReceptionAI-Webhooks/1.0",
-        "x-reception-event": String(p.event),
-        "x-reception-signature": `sha256=${signature}`,
+        "user-agent": "Azentoo-Webhooks/1.0",
+        "x-azentoo-event": String(p.event),
+        "x-azentoo-signature": `sha256=${signature}`,
       },
       body,
       signal: AbortSignal.timeout(10_000),
@@ -57,7 +57,7 @@ registerJob("sheets.append", async (p) => {
   if (!dest || !conn) return;
   const creds = unseal<{ token?: string }>(conn.secret);
   if (!creds?.token) throw new Error("Google Sheets token missing");
-  const range = encodeURIComponent(`${dest.sheetName || "Reception AI"}!A1`);
+  const range = encodeURIComponent(`${dest.sheetName || "Azentoo"}!A1`);
   const started = Date.now();
   const res = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(dest.spreadsheetId)}/values/${range}:append?valueInputOption=USER_ENTERED`,

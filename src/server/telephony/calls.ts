@@ -27,11 +27,11 @@ export function outboundRefusal(provider: string) {
     case "aether-sip":
       return "This is a test line, so it cannot place real calls. Import a Twilio number under Phone numbers to call out.";
     case "plivo":
-      return "Plivo numbers answer inbound calls only; Reception AI cannot place outbound calls through Plivo. Use a Twilio number to call out.";
+      return "Plivo numbers answer inbound calls only; Azentoo cannot place outbound calls through Plivo. Use a Twilio number to call out.";
     case "sip":
-      return "SIP trunk numbers answer inbound calls only; Reception AI cannot place outbound calls on a SIP trunk. Use a Twilio number to call out.";
+      return "SIP trunk numbers answer inbound calls only; Azentoo cannot place outbound calls on a SIP trunk. Use a Twilio number to call out.";
     default:
-      return "Reception AI cannot place outbound calls on this kind of line. Use a Twilio number to call out.";
+      return "Azentoo cannot place outbound calls on this kind of line. Use a Twilio number to call out.";
   }
 }
 

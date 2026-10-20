@@ -1155,7 +1155,7 @@ export default function StudioPage() {
               </Button>
               <div className="grid gap-3 rounded-xl px-4 py-4 shadow-[var(--shadow-border)]">
                 <p className="text-sm font-medium">Looks like them</p>
-                <p className="text-sm text-muted">Logo, color, and a line that isn’t Reception AI’s.</p>
+                <p className="text-sm text-muted">Logo, color, and a line that isn’t Azentoo’s.</p>
                 <Field label="Headline">
                   <Input
                     value={agent.widgetConfig.headline}
@@ -1195,7 +1195,7 @@ export default function StudioPage() {
                   />
                 </Field>
                 <label className="flex items-center justify-between text-sm">
-                  Hide “Powered by Reception AI”
+                  Hide “Powered by Azentoo”
                   <Switch checked={agent.widgetConfig.hideBrand} onCheckedChange={(v) => set({ widgetConfig: { ...agent.widgetConfig, hideBrand: v } })} />
                 </label>
               </div>

@@ -22,19 +22,19 @@ const CARRIERS: Record<string, { inbound: string; outbound: string; note: string
   vonage: {
     inbound: "none",
     outbound: "limited",
-    note: "Reception AI cannot answer calls on Vonage yet. An outbound call plays your greeting as a one-way announcement; it does not hold a conversation.",
+    note: "Azentoo cannot answer calls on Vonage yet. An outbound call plays your greeting as a one-way announcement; it does not hold a conversation.",
   },
   telnyx: {
     inbound: "none",
     outbound: "limited",
-    note: "Reception AI cannot answer calls on Telnyx yet. An outbound call is placed on your Call Control connection; what happens once it is answered is set by that connection, not by Reception AI.",
+    note: "Azentoo cannot answer calls on Telnyx yet. An outbound call is placed on your Call Control connection; what happens once it is answered is set by that connection, not by Azentoo.",
   },
   aether: { inbound: "none", outbound: "none", note: "A test line for trying the workspace. It cannot place or receive real calls." },
   "aether-sip": { inbound: "none", outbound: "none", note: "A test address for trying the workspace. It cannot place or receive real calls." },
 };
 
 export function carrier(provider: string) {
-  return CARRIERS[provider] ?? { inbound: "none", outbound: "none", note: "Reception AI does not support live calls on this provider." };
+  return CARRIERS[provider] ?? { inbound: "none", outbound: "none", note: "Azentoo does not support live calls on this provider." };
 }
 
 function canCallOut(provider: string) {
@@ -48,11 +48,11 @@ function refusal(provider: string) {
     case "aether-sip":
       return "This is a test line, so it cannot place real calls. Import a Twilio number under Phone numbers to call out.";
     case "plivo":
-      return "Plivo numbers answer inbound calls only; Reception AI cannot place outbound calls through Plivo. Use a Twilio number to call out.";
+      return "Plivo numbers answer inbound calls only; Azentoo cannot place outbound calls through Plivo. Use a Twilio number to call out.";
     case "sip":
-      return "SIP trunk numbers answer inbound calls only; Reception AI cannot place outbound calls on a SIP trunk. Use a Twilio number to call out.";
+      return "SIP trunk numbers answer inbound calls only; Azentoo cannot place outbound calls on a SIP trunk. Use a Twilio number to call out.";
     default:
-      return "Reception AI cannot place outbound calls on this kind of line. Use a Twilio number to call out.";
+      return "Azentoo cannot place outbound calls on this kind of line. Use a Twilio number to call out.";
   }
 }
 

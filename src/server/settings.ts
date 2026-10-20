@@ -45,7 +45,7 @@ export const DEMO_REFUSAL = "Demo mode: changes are disabled here. Your own inst
 
 export function branding(get: Get = getSetting) {
   return {
-    name: get("BRAND_NAME") || "Reception AI",
+    name: get("BRAND_NAME") || "Azentoo",
     tagline: get("BRAND_TAGLINE") || "Never miss a call again.",
     supportEmail: get("SUPPORT_EMAIL"),
     signupsOpen: flag("FEATURE_SIGNUPS", true, get) && !isDemoMode(),
@@ -56,12 +56,12 @@ export function branding(get: Get = getSetting) {
 }
 
 export function siteMeta(get: Get = getSetting) {
-  const name = get("BRAND_NAME") || "Reception AI";
+  const name = get("BRAND_NAME") || "Azentoo";
   return {
     title: get("SITE_TITLE") || name,
     description:
       get("SITE_DESCRIPTION") ||
-      "Reception AI connects calls, website conversations, bookings, leads, and follow-ups with your business apps. One workspace for your whole front desk.",
+      "Azentoo connects calls, website conversations, bookings, leads, and follow-ups with your business apps. One workspace for your whole front desk.",
     ogImage: get("SITE_OG_IMAGE"),
     favicon: get("SITE_FAVICON") || "/favicon.svg",
     noindex: flag("SITE_NOINDEX", false, get),

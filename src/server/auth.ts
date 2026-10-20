@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { newId } from "@/lib/utils";
 import { adminEmails } from "./admin-claim";
 import { db, save, nowIso } from "./db";
-import { DEMO_ADMIN_EMAIL, DEMO_OWNER_EMAIL } from "./seed";
+import { DEMO_ADMIN_EMAIL, DEMO_OWNER_EMAIL, LEGACY_DEMO_EMAILS } from "./seed";
 import { isDemoMode } from "./settings";
 import type { AdminLevel, User } from "./types";
 
@@ -33,7 +33,7 @@ export function verifyPassword(password: string, stored: string) {
   return expected.length === candidate.length && crypto.timingSafeEqual(expected, candidate);
 }
 
-const DEMO_EMAILS = [DEMO_OWNER_EMAIL, DEMO_ADMIN_EMAIL];
+const DEMO_EMAILS = [DEMO_OWNER_EMAIL, DEMO_ADMIN_EMAIL, ...Object.values(LEGACY_DEMO_EMAILS)];
 
 export function isDemoAccount(user: Pick<User, "email">) {
   return DEMO_EMAILS.includes(user.email.toLowerCase());

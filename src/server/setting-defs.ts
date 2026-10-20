@@ -95,7 +95,7 @@ export const SETTING_DEFS: SettingDef[] = [
     label: "From address",
     group: "email",
     help: "What recipients see as the sender.",
-    placeholder: "Reception AI <hello@…>",
+    placeholder: "Azentoo <hello@…>",
   },
   {
     key: "STRIPE_SECRET_KEY",
@@ -144,7 +144,7 @@ export const SETTING_DEFS: SettingDef[] = [
     label: "Voice stream URL",
     group: "platform",
     help: "Only when the Public URL is a frontend that proxies /api (e.g. Vercel → Render): the backend's own URL, where carriers open the live-call WebSocket. Leave empty otherwise.",
-    placeholder: "https://reception-api.onrender.com",
+    placeholder: "https://azentoo-api.onrender.com",
   },
   {
     key: "QSTASH_TOKEN",
@@ -233,7 +233,7 @@ export const SETTING_DEFS: SettingDef[] = [
     label: "Product name",
     group: "brand",
     help: "Shown in the app, in emails, and in the browser tab.",
-    placeholder: "Reception AI",
+    placeholder: "Azentoo",
   },
   {
     key: "SUPPORT_EMAIL",
@@ -274,7 +274,7 @@ export const SETTING_DEFS: SettingDef[] = [
     key: "FEATURE_LIVE_DEMO",
     label: "Live voice demo on the home page",
     group: "features",
-    help: "Lets visitors talk to Reception AI from the landing page. Uses the OpenAI key and is billed to you.",
+    help: "Lets visitors talk to Azentoo from the landing page. Uses the OpenAI key and is billed to you.",
     kind: "boolean",
   },
   {
@@ -282,14 +282,14 @@ export const SETTING_DEFS: SettingDef[] = [
     label: "Browser tab title",
     group: "site",
     help: "Shown in the tab and as the headline in search results. Defaults to the product name.",
-    placeholder: "Reception AI",
+    placeholder: "Azentoo",
   },
   {
     key: "SITE_DESCRIPTION",
     label: "Search description",
     group: "site",
     help: "The sentence under your link in Google and in a shared preview. Around 155 characters.",
-    placeholder: "Reception AI answers your phone, books the appointment, and tells you what happened.",
+    placeholder: "Azentoo answers your phone, books the appointment, and tells you what happened.",
   },
   {
     key: "SITE_OG_IMAGE",

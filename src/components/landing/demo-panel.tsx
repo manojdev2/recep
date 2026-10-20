@@ -120,7 +120,7 @@ export function DemoPanel() {
     phase === "connecting"
       ? "Connecting your conversation…"
       : phase === "speaking"
-        ? "Reception AI is speaking"
+        ? "Azentoo is speaking"
         : phase === "thinking" || sending
           ? "Just a moment…"
           : live
@@ -154,7 +154,7 @@ export function DemoPanel() {
         </p>
       </div>
       <p className="mt-1.5 max-w-sm text-center text-sm leading-relaxed text-muted">
-        {live ? "Speak naturally. You can interrupt at any time." : "Start once. Talk freely. Reception AI takes care of the pauses."}
+        {live ? "Speak naturally. You can interrupt at any time." : "Start once. Talk freely. Azentoo takes care of the pauses."}
       </p>
       <div className="mt-5 flex shrink-0 flex-wrap items-center justify-center gap-2">
         {live ? (
@@ -196,7 +196,7 @@ export function DemoPanel() {
       {showLog && (
         <div ref={log} className="demo-log mt-6 w-full space-y-3 overflow-y-auto" role="log" aria-label="Demo conversation" aria-live="polite">
           {lines.length === 0 && live && (
-            <p className="px-1 text-center text-sm text-muted">Say hello — your words and Reception AI’s replies will appear here.</p>
+            <p className="px-1 text-center text-sm text-muted">Say hello — your words and Azentoo’s replies will appear here.</p>
           )}
           {lines.map((l) => (
             <div
@@ -208,13 +208,13 @@ export function DemoPanel() {
               )}
               key={l.id}
             >
-              <span className="sr-only">{l.role === "user" ? "You: " : "Reception AI: "}</span>
+              <span className="sr-only">{l.role === "user" ? "You: " : "Azentoo: "}</span>
               {l.content}
             </div>
           ))}
           {sending && (
             <div className="mr-auto flex w-fit items-center gap-2 rounded-2xl rounded-bl-md bg-surface px-4 py-3 text-sm text-muted shadow-sm ring-1 ring-border">
-              <StatusOrb state="composing" size={20} label="Reception AI is composing a reply" />
+              <StatusOrb state="composing" size={20} label="Azentoo is composing a reply" />
               Finding the right words…
             </div>
           )}

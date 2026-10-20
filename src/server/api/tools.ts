@@ -41,7 +41,7 @@ async function sendWhatsApp(cfg: Record<string, string>, to: string, body: strin
 
 async function sendGmail(cfg: Record<string, string>, to: string, body: string) {
   const raw = Buffer.from(
-    [`From: ${cfg.from}`, `To: ${to}`, "Subject: A message from Reception AI", "Content-Type: text/plain; charset=utf-8", "", body].join("\r\n"),
+    [`From: ${cfg.from}`, `To: ${to}`, "Subject: A message from Azentoo", "Content-Type: text/plain; charset=utf-8", "", body].join("\r\n"),
   )
     .toString("base64")
     .replace(/\+/g, "-")
@@ -323,13 +323,13 @@ export const tools = {
   pingWebhook: mutation(async (id: string, { user }) => {
     const hook = db().webhooks.find((w) => w.id === id && w.userId === user.id);
     if (!hook) throw new RpcError("That endpoint is gone.", 404);
-    const body = JSON.stringify({ event: "ping", at: nowIso(), data: { hello: "from Reception AI" } });
+    const body = JSON.stringify({ event: "ping", at: nowIso(), data: { hello: "from Azentoo" } });
     const signature = crypto.createHmac("sha256", hook.secret).update(body).digest("hex");
     let status = "error";
     try {
       const res = await fetch(hook.url, {
         method: "POST",
-        headers: { "content-type": "application/json", "x-reception-event": "ping", "x-reception-signature": `sha256=${signature}` },
+        headers: { "content-type": "application/json", "x-azentoo-event": "ping", "x-azentoo-signature": `sha256=${signature}` },
         body,
         signal: AbortSignal.timeout(10_000),
       });
@@ -380,7 +380,7 @@ export const tools = {
         userId: user.id,
         connectionId: input.connectionId,
         spreadsheetId: id,
-        sheetName: input.sheetName.trim() || "Reception AI",
+        sheetName: input.sheetName.trim() || "Azentoo",
         pushAppointments: !!input.pushAppointments,
         pushForms: !!input.pushForms,
         pushLeads: !!input.pushLeads,

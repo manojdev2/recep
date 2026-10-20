@@ -136,7 +136,7 @@ export class RealtimeDemo {
         channel.send(
           JSON.stringify({
             type: "response.create",
-            response: { instructions: "Briefly introduce yourself as Reception AI, an AI demo, and ask how you can help." },
+            response: { instructions: "Briefly introduce yourself as Azentoo, an AI demo, and ask how you can help." },
           }),
         );
         this.deadline = setTimeout(() => {

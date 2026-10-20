@@ -222,7 +222,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const brandName =
     useQuery({ queryKey: ["branding"], queryFn: () => api.site.branding(), staleTime: 600_000 }).data?.name ??
-    "Reception AI";
+    "Azentoo";
   const workspace = useQuery({ queryKey: ["workspace"], queryFn: () => api.agents.workspace(), enabled: !!user });
   const qc = useQueryClient();
   const reported = useRef(false);

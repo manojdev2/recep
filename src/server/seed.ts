@@ -8,8 +8,16 @@ function hash(password: string) {
   return `scrypt:${salt}:${crypto.scryptSync(password, salt, 64).toString("hex")}`;
 }
 
-export const DEMO_OWNER_EMAIL = "demo@reception-ai.app";
-export const DEMO_ADMIN_EMAIL = "demo-admin@reception-ai.app";
+export const DEMO_OWNER_EMAIL = "demo@azentoo.app";
+export const DEMO_ADMIN_EMAIL = "demo-admin@azentoo.app";
+/**
+ * The same two accounts in databases seeded before the rename to Azentoo. They must stay
+ * demo accounts: their password is published, so production keeps them locked.
+ */
+export const LEGACY_DEMO_EMAILS: Record<string, string> = {
+  [DEMO_OWNER_EMAIL]: "demo@reception-ai.app",
+  [DEMO_ADMIN_EMAIL]: "demo-admin@reception-ai.app",
+};
 export const DEMO_PASSWORD = "demo1234";
 
 export const DEFAULT_RATES: Omit<RateCard, "updatedAt">[] = [

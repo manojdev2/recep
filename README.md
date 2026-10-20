@@ -1,4 +1,4 @@
-# Reception AI
+# Azentoo
 
 An AI receptionist for small businesses: it answers phone calls and website conversations, books appointments,
 captures leads, runs outbound call campaigns, and connects to the apps a business already uses. One workspace per
@@ -34,8 +34,8 @@ Without any keys, receptionists answer from an offline preview. Add `XAI_API_KEY
 
 `DEMO_MODE=true` turns the deployment into a read-only showroom with one-click accounts:
 
-- business owner: `demo@reception-ai.app` / `demo1234`
-- platform admin: `demo-admin@reception-ai.app` / `demo1234`
+- business owner: `demo@azentoo.app` / `demo1234`
+- platform admin: `demo-admin@azentoo.app` / `demo1234`
 
 ## Where things are
 

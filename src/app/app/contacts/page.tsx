@@ -123,7 +123,7 @@ export default function ContactsPage() {
       "Name,Phone,Email,Company,Notes,Tags",
       ...(contacts.data ?? []).map((c) => [c.name, c.e164, c.email, c.company, c.notes, c.tags].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")),
     ];
-    download("aether-contacts.csv", lines.join("\n"), "text/csv;charset=utf-8");
+    download("azentoo-contacts.csv", lines.join("\n"), "text/csv;charset=utf-8");
   }
 
   if (contacts.isPending) {
@@ -244,7 +244,7 @@ export default function ContactsPage() {
             <p className="text-sm font-medium">Start from the template</p>
             <p className="text-xs text-muted">{COLUMNS.join(" · ")}. Opens in Excel, Numbers or Sheets.</p>
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="secondary" onClick={() => download("aether-contacts-template.csv", "﻿" + template(), "text/csv;charset=utf-8")}>
+              <Button size="sm" variant="secondary" onClick={() => download("azentoo-contacts-template.csv", "﻿" + template(), "text/csv;charset=utf-8")}>
                 <Download className="size-3.5" />
                 Download template
               </Button>

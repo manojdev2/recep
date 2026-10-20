@@ -39,7 +39,7 @@ export async function fetchPage(url: string) {
   let res: Response;
   try {
     res = await fetch(parsed, {
-      headers: { "user-agent": "ReceptionAI/1.0 (+knowledge fetch)", accept: "text/html,text/plain;q=0.9,*/*;q=0.5" },
+      headers: { "user-agent": "Azentoo/1.0 (+knowledge fetch)", accept: "text/html,text/plain;q=0.9,*/*;q=0.5" },
       redirect: "follow",
       signal: AbortSignal.timeout(15_000),
     });

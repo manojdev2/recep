@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Overview · Reception AI Docs</title>
+    <title>Overview · Azentoo Docs</title>
     <meta
       name="description"
-      content="User guide, architecture, environment, install, and deploy notes for Reception AI — the AI receptionist for clinics, salons, restaurants, and trades."
+      content="User guide, architecture, environment, install, and deploy notes for Azentoo — the AI receptionist for clinics, salons, restaurants, and trades."
     />
     <meta name="theme-color" content="#0d0d12" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -40,7 +40,7 @@
 
     <header class="topbar">
       <div class="topbar-inner">
-        <a class="wordmark" href="/" aria-label="Reception AI home">
+        <a class="wordmark" href="/" aria-label="Azentoo home">
           <svg class="wordmark-mark" viewBox="0 0 40 40" aria-hidden="true">
             <rect width="40" height="40" rx="13" fill="#cbff3d" />
             <path
@@ -54,7 +54,7 @@
             <path d="M18 16v3M22 15v5" stroke="#fff" stroke-width="2" stroke-linecap="round" />
             <circle cx="30.5" cy="9.5" r="3" fill="#ffffff" />
           </svg>
-          <span class="wordmark-name">Reception AI</span>
+          <span class="wordmark-name">Azentoo</span>
         </a>
         <nav class="top-links" aria-label="Site">
           <a href="/#features">Features</a>
@@ -136,7 +136,7 @@
           <p class="kicker">Documentation</p>
           <h1>The front desk, written down.</h1>
           <p class="lede">
-            Reception AI answers the phone, books the appointment, and writes down what happened — in your words, on your
+            Azentoo answers the phone, books the appointment, and writes down what happened — in your words, on your
             number. These pages cover the product for operators and the system for the people who run it.
           </p>
 
@@ -162,9 +162,9 @@
             </a>
           </div>
 
-          <h2 id="what-it-is">What Reception AI is</h2>
+          <h2 id="what-it-is">What Azentoo is</h2>
           <p>
-            Reception AI is an AI receptionist for clinics, salons, restaurants, and trades. A caller rings the number they already
+            Azentoo is an AI receptionist for clinics, salons, restaurants, and trades. A caller rings the number they already
             know. The receptionist answers in a chosen voice, stays inside the facts you uploaded, books or takes a message, and
             hands over when a person should take it.
           </p>
@@ -1041,15 +1041,15 @@ ENV PORT=8080 DATA_DIR=/data
 VOLUME /data
 EXPOSE 8080
 CMD ["npm", "run", "start"]</code></pre>
-          <pre><code>docker build -t receptionai .
-docker run --rm -p 8080:8080 -v receptionai-data:/data --env-file .env receptionai</code></pre>
+          <pre><code>docker build -t azentoo .
+docker run --rm -p 8080:8080 -v azentoo-data:/data --env-file .env azentoo</code></pre>
 
           <h2 id="fly">Fly.io</h2>
-          <pre><code>fly launch --no-deploy --name receptionai
+          <pre><code>fly launch --no-deploy --name azentoo
 fly volumes create data --size 1
 fly secrets set \
   CREDENTIAL_ENCRYPTION_KEY='…' \
-  APP_URL='https://receptionai.fly.dev' \
+  APP_URL='https://azentoo.fly.dev' \
   OPENAI_API_KEY='sk-…' \
   JOBS_SECRET='…'
 fly deploy</code></pre>
@@ -1060,7 +1060,7 @@ fly deploy</code></pre>
           </ul>
 
           <h2 id="railway">Railway</h2>
-          <pre><code>railway init --name reception-ai
+          <pre><code>railway init --name azentoo
 railway add --database postgres
 railway up
 railway domain --port 8080</code></pre>
@@ -1448,7 +1448,7 @@ railway domain --port 8080</code></pre>
 
     <footer class="footer">
       <div class="footer-inner">
-        <p>© <span id="year"></span> Reception AI</p>
+        <p>© <span id="year"></span> Azentoo</p>
         <p>Answers in your words. Hands over when it should.</p>
       </div>
     </footer>

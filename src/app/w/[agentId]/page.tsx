@@ -15,9 +15,9 @@ const NO_WIDGET = { color: "", logoUrl: "", headline: "", hideBrand: false, allo
 
 const DEMO = {
   id: "demo",
-  name: "Reception AI",
+  name: "Azentoo",
   tagline: "A warm welcome for every caller.",
-  greeting: "Hi, I’m Reception AI — an AI receptionist, here as a demo. What would you like to know?",
+  greeting: "Hi, I’m Azentoo — an AI receptionist, here as a demo. What would you like to know?",
   voiceId: "marin",
   language: "en",
   status: "live",
@@ -45,7 +45,7 @@ export default function WidgetLinePage() {
               <Link href="/app">Open studio</Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href="/">Back to Reception AI</Link>
+              <Link href="/">Back to Azentoo</Link>
             </Button>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function WidgetLinePage() {
           </header>
         )}
         <TalkPanel agentId={line.id} greeting={line.greeting} agentName={line.name} mode="public" variant="widget" language={line.language} />
-        {widget.hideBrand ? null : <p className="pb-6 text-center text-[11px] tracking-[0.16em] text-subtle uppercase">Powered by Reception AI</p>}
+        {widget.hideBrand ? null : <p className="pb-6 text-center text-[11px] tracking-[0.16em] text-subtle uppercase">Powered by Azentoo</p>}
       </div>
     </div>
   );

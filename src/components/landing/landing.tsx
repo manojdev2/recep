@@ -63,7 +63,7 @@ export function Landing({ name, supportEmail, companyName, termsUrl, privacyUrl,
               <span className="text-accent">Fewer missed calls.</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-              Reception AI answers calls, books appointments, captures leads, and follows up — connected to the apps you already use. Your whole front desk, in one workspace.
+              Azentoo answers calls, books appointments, captures leads, and follows up — connected to the apps you already use. Your whole front desk, in one workspace.
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg">
@@ -120,7 +120,7 @@ export function Landing({ name, supportEmail, companyName, termsUrl, privacyUrl,
                 <br className="hidden lg:block" /> have to be.
               </h2>
               <p className="mt-6 max-w-md leading-relaxed text-muted">
-                The lunch rush. The finishing touches. A customer who needs a little extra time. Reception AI helps you stay present, without leaving your callers waiting.
+                The lunch rush. The finishing touches. A customer who needs a little extra time. Azentoo helps you stay present, without leaving your callers waiting.
               </p>
               <div className="mt-8 divide-y divide-border">
                 {story.map(([Icon, title, body]) => (
@@ -151,7 +151,7 @@ export function Landing({ name, supportEmail, companyName, termsUrl, privacyUrl,
                 A new teammate.
                 <br />A familiar voice.
               </h2>
-              <p className="mt-5 max-w-sm leading-relaxed text-muted">You know your business best. Give Reception AI the essentials, then make it your own.</p>
+              <p className="mt-5 max-w-sm leading-relaxed text-muted">You know your business best. Give Azentoo the essentials, then make it your own.</p>
             </div>
             <ol data-reveal="" data-reveal-delay="70" className="divide-y divide-border">
               {[
@@ -243,7 +243,7 @@ export function Landing({ name, supportEmail, companyName, termsUrl, privacyUrl,
                 your real work.
               </h2>
               <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted">
-                The work you love. The people who need you. The moments you don’t want to miss. Let Reception AI take the next call.
+                The work you love. The people who need you. The moments you don’t want to miss. Let Azentoo take the next call.
               </p>
               <Button asChild size="lg" className="mt-8">
                 <Link href="/login">

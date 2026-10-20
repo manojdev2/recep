@@ -127,7 +127,7 @@ export function LandingHeader({ name }: { name?: string }) {
     <header className="sticky top-0 z-40 px-3 pt-3 sm:px-6 sm:pt-4">
       <div className="mx-auto max-w-6xl rounded-[1.7rem] border border-border/80 bg-surface/90 shadow-[0_8px_35px_#0d0d1208] backdrop-blur-xl">
         <div className="flex h-[68px] items-center justify-between gap-2 px-4 sm:px-5">
-          <Link href="/" aria-label="Reception AI home" onClick={() => setOpen(false)}>
+          <Link href="/" aria-label="Azentoo home" onClick={() => setOpen(false)}>
             <Wordmark name={name} />
           </Link>
           <nav className="hidden items-center gap-0.5 rounded-full bg-bg/70 px-2 py-1 text-sm text-muted lg:flex">
@@ -308,7 +308,7 @@ export function Features() {
                   <div className="rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_60px_-30px_#0d0d1240] sm:p-7">
                     <div className="mb-6 flex items-center gap-2 border-b border-border pb-4">
                       <Mark className="size-6" />
-                      <span className="text-xs font-semibold">Reception AI</span>
+                      <span className="text-xs font-semibold">Azentoo</span>
                       <span className="ml-auto text-[10px] text-muted">{f.label}</span>
                     </div>
                     <Preview id={f.id} />
@@ -482,7 +482,7 @@ export function Toolkit() {
             A front desk with
             <br />a very full toolkit.
           </h2>
-          <p className="mt-5 leading-relaxed text-muted">Give every conversation somewhere useful to go. These tools live right inside Reception AI.</p>
+          <p className="mt-5 leading-relaxed text-muted">Give every conversation somewhere useful to go. These tools live right inside Azentoo.</p>
         </div>
         <div className="mt-12 grid gap-x-8 gap-y-0 sm:grid-cols-2 lg:grid-cols-4">
           {PLATFORM_TOOLS.map((t) => (
@@ -656,7 +656,7 @@ function Constellation({ apps }: { apps: Connector[] }) {
           {paused ? "Play motion" : "Pause motion"}
         </button>
       </div>
-      <div className="integration-map" aria-label="Apps connected to Reception AI">
+      <div className="integration-map" aria-label="Apps connected to Azentoo">
         <svg className="integration-paths integration-paths-desktop" viewBox="0 0 1120 760" fill="none" aria-hidden="true">
           {nodes.map(({ app, color, path }, i) => (
             <g data-selected={selected === app.key} className="integration-wire" key={app.key}>
@@ -699,7 +699,7 @@ function Constellation({ apps }: { apps: Connector[] }) {
         <div className="integration-hub">
           <div className="integration-hub-inner">
             <Mark />
-            <span className="integration-hub-name">Reception AI</span>
+            <span className="integration-hub-name">Azentoo</span>
             <span className="integration-hub-caption">
               Every conversation.
               <br />
@@ -912,7 +912,7 @@ const USE_CASES = [
     label: "In the middle of the rush",
     title: "More time at the table.\nLess time on the phone.",
     description:
-      "The kitchen is moving, guests are arriving, and the phone rings. Reception AI helps with the questions that shouldn’t interrupt a good service.",
+      "The kitchen is moving, guests are arriving, and the phone rings. Azentoo helps with the questions that shouldn’t interrupt a good service.",
     tasks: ["Answer questions about hours and facilities", "Collect reservation requests and party sizes", "Pass special requests to the right person"],
     caller: "Could we bring a group of six on Saturday?",
     reply: "Of course, I can help with a reservation request. What time were you hoping for?",
@@ -1004,7 +1004,7 @@ export function UseCases() {
     <section id="use" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-20 sm:py-24">
       <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
-          <p className="eyebrow">Who is Reception AI for?</p>
+          <p className="eyebrow">Who is Azentoo for?</p>
           <h2 data-reveal="" className="section-title mt-4">
             Real businesses.
             <br />
@@ -1089,7 +1089,7 @@ export function UseCases() {
                 ))}
               </ul>
               <Link href="/login" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-accent">
-                Make Reception AI your own <ArrowUpRight className="size-4" />
+                Make Azentoo your own <ArrowUpRight className="size-4" />
               </Link>
             </div>
           </div>
@@ -1107,7 +1107,7 @@ export function UseCases() {
               </div>
               <div className="mr-6 rounded-[1.3rem] rounded-bl-md bg-accent p-5 text-accent-fg">
                 <p className="mb-1.5 flex items-center gap-1.5 text-[9px] font-semibold tracking-widest uppercase opacity-70">
-                  <MessageCircle className="size-3" /> Reception AI
+                  <MessageCircle className="size-3" /> Azentoo
                 </p>
                 <p className="text-sm leading-relaxed">{c.reply}</p>
               </div>
@@ -1135,7 +1135,7 @@ export function UseCases() {
         </div>
       </div>
       <div className="mt-6 flex flex-col justify-between gap-3 text-xs leading-relaxed text-muted sm:flex-row">
-        <p>These are examples. Your instructions and connected tools shape what Reception AI can do.</p>
+        <p>These are examples. Your instructions and connected tools shape what Azentoo can do.</p>
         <Link href="/login" className="inline-flex shrink-0 items-center gap-1.5 font-semibold text-accent">
           Something different? Start with your business. <ArrowUpRight className="size-3.5" />
         </Link>
@@ -1310,7 +1310,7 @@ export function VoiceStudio() {
 
 const FAQ = [
   {
-    q: "What can Reception AI help with?",
+    q: "What can Azentoo help with?",
     a: "Answer calls and website conversations, book appointments, capture leads, run outbound campaigns, and review results. The workspace also includes a CRM, forms, business knowledge, workflows, and app connections. You choose which tools your receptionist can use.",
   },
   {
@@ -1335,7 +1335,7 @@ const FAQ = [
   },
   {
     q: "Do I need a separate CRM or booking tool?",
-    a: "Reception AI includes a lead board, contact book, appointments, and forms. Use those to get started, or connect your existing apps when you want your receptionist to work with them. External accounts need to be connected and configured first.",
+    a: "Azentoo includes a lead board, contact book, appointments, and forms. Use those to get started, or connect your existing apps when you want your receptionist to work with them. External accounts need to be connected and configured first.",
   },
   {
     q: "Can I change things later?",
@@ -1359,7 +1359,7 @@ export function Faq() {
           </h2>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">Get to know your new receptionist before you hand over the first hello.</p>
           <a href="#demo" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent">
-            Ask Reception AI yourself <ArrowUpRight className="size-4" />
+            Ask Azentoo yourself <ArrowUpRight className="size-4" />
           </a>
         </div>
         <Accordion.Root data-reveal="" type="single" collapsible className="space-y-3">
@@ -1420,7 +1420,7 @@ export function LandingFooter({
           <p className="col-span-2 max-w-xs text-sm leading-relaxed opacity-70 md:col-span-1">
             Thoughtful conversations for the people behind small businesses. Here for the next hello.
           </p>
-          <nav aria-label="Explore Reception AI" className="flex flex-col items-start gap-3 text-sm">
+          <nav aria-label="Explore Azentoo" className="flex flex-col items-start gap-3 text-sm">
             <p className="mb-1 text-[10px] font-semibold tracking-widest uppercase opacity-60">Explore</p>
             {[
               ["#features", "Product features"],
@@ -1465,12 +1465,12 @@ export function LandingFooter({
           className="footer-signature select-none text-[clamp(2.9rem,14vw,12rem)] whitespace-nowrap font-semibold leading-[.85] tracking-[-.075em] opacity-[.12]"
           aria-hidden="true"
         >
-          {name || "Reception AI"}
+          {name || "Azentoo"}
           <span className="text-accent">.</span>
         </div>
         <div className="mt-8 flex flex-wrap items-center justify-between gap-5 border-t border-current/15 py-6 text-xs">
           <p>
-            © {new Date().getFullYear()} {companyName || name || "Reception AI"}
+            © {new Date().getFullYear()} {companyName || name || "Azentoo"}
           </p>
           <div className="flex items-center gap-5">
             {termsUrl && <a href={termsUrl}>Terms</a>}
