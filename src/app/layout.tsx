@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Providers } from "@/components/providers";
 import { themeInitScript } from "@/components/theme";
-import { siteMeta } from "@/server/settings";
+import { loadLanding } from "@/server/landing";
 import "./globals.css";
 
 // Brand, title and analytics come from the store, which is only loaded at runtime (Postgres) and
@@ -10,7 +10,7 @@ import "./globals.css";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = siteMeta();
+  const site = (await loadLanding()).meta;
   return {
     title: site.title,
     description: site.description,
@@ -33,8 +33,8 @@ export const viewport: Viewport = {
   themeColor: "#0d0d12",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const site = siteMeta();
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const site = (await loadLanding()).meta;
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
