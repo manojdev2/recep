@@ -174,7 +174,9 @@ export function callToken(callId: string) {
 }
 
 export function streamUrl(call: Call, provider: "twilio" | "plivo") {
-  const ws = appUrl().replace(/^http/, "ws");
+  // When APP_URL is a frontend that proxies /api (Vercel), WebSockets can't go through it:
+  // carriers must connect to the backend directly.
+  const ws = (getSetting("VOICE_STREAM_ORIGIN") || appUrl()).replace(/\/$/, "").replace(/^http/, "ws");
   return `${ws}/api/voice/stream?call=${call.id}&token=${callToken(call.id)}&provider=${provider}`;
 }
 

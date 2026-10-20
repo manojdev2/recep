@@ -140,6 +140,13 @@ export const SETTING_DEFS: SettingDef[] = [
     placeholder: "https://app.example.com",
   },
   {
+    key: "VOICE_STREAM_ORIGIN",
+    label: "Voice stream URL",
+    group: "platform",
+    help: "Only when the Public URL is a frontend that proxies /api (e.g. Vercel → Render): the backend's own URL, where carriers open the live-call WebSocket. Leave empty otherwise.",
+    placeholder: "https://reception-api.onrender.com",
+  },
+  {
     key: "QSTASH_TOKEN",
     label: "QStash token",
     group: "platform",

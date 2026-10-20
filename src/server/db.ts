@@ -60,9 +60,12 @@ export async function initDb() {
     const { default: pg } = await import("pg");
     // Supabase signs its TLS certificates with its own CA. Point DATABASE_CA_CERT at the
     // certificate from the dashboard (Database settings → SSL) to connect over verified TLS.
-    const caPath = process.env.DATABASE_CA_CERT;
+    // Either a file path or the PEM itself (hosts' env editors may store newlines as "\n").
+    const caPath = process.env.DATABASE_CA_CERT?.trim();
     let ssl: { ca: string } | undefined;
-    if (caPath) {
+    if (caPath?.startsWith("-----BEGIN")) {
+      ssl = { ca: caPath.replace(/\\n/g, "\n") };
+    } else if (caPath) {
       try {
         ssl = { ca: fs.readFileSync(caPath, "utf8") };
       } catch (err) {

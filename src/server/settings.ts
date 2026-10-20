@@ -22,8 +22,11 @@ export function settingSource(key: string): "database" | "environment" | "cleare
   return process.env[key] ? "environment" : "unset";
 }
 
-export function flag(key: string, fallback: boolean) {
-  const v = getSetting(key).toLowerCase();
+/** Reads a setting. Defaults to the store; pass `() => ""` for built-in defaults without one. */
+type Get = (key: string) => string;
+
+export function flag(key: string, fallback: boolean, get: Get = getSetting) {
+  const v = get(key).toLowerCase();
   if (v === "true" || v === "1" || v === "on") return true;
   if (v === "false" || v === "0" || v === "off") return false;
   return fallback;
@@ -40,33 +43,33 @@ export function isDemoMode() {
 
 export const DEMO_REFUSAL = "Demo mode: changes are disabled here. Your own install saves everything normally.";
 
-export function branding() {
+export function branding(get: Get = getSetting) {
   return {
-    name: getSetting("BRAND_NAME") || "Reception AI",
-    tagline: getSetting("BRAND_TAGLINE") || "Never miss a call again.",
-    supportEmail: getSetting("SUPPORT_EMAIL"),
-    signupsOpen: flag("FEATURE_SIGNUPS", true) && !isDemoMode(),
+    name: get("BRAND_NAME") || "Reception AI",
+    tagline: get("BRAND_TAGLINE") || "Never miss a call again.",
+    supportEmail: get("SUPPORT_EMAIL"),
+    signupsOpen: flag("FEATURE_SIGNUPS", true, get) && !isDemoMode(),
     demoMode: isDemoMode(),
     /** Sign-in providers offered on /login next to email. */
-    socialProviders: getSetting("GOOGLE_CLIENT_ID") && getSetting("GOOGLE_CLIENT_SECRET") ? [{ id: "google", label: "Google" }] : [],
+    socialProviders: get("GOOGLE_CLIENT_ID") && get("GOOGLE_CLIENT_SECRET") ? [{ id: "google", label: "Google" }] : [],
   };
 }
 
-export function siteMeta() {
-  const name = getSetting("BRAND_NAME") || "Reception AI";
+export function siteMeta(get: Get = getSetting) {
+  const name = get("BRAND_NAME") || "Reception AI";
   return {
-    title: getSetting("SITE_TITLE") || name,
+    title: get("SITE_TITLE") || name,
     description:
-      getSetting("SITE_DESCRIPTION") ||
+      get("SITE_DESCRIPTION") ||
       "Reception AI connects calls, website conversations, bookings, leads, and follow-ups with your business apps. One workspace for your whole front desk.",
-    ogImage: getSetting("SITE_OG_IMAGE"),
-    favicon: getSetting("SITE_FAVICON") || "/favicon.svg",
-    noindex: flag("SITE_NOINDEX", false),
-    gaId: getSetting("ANALYTICS_GA_ID"),
-    plausibleDomain: getSetting("ANALYTICS_PLAUSIBLE_DOMAIN"),
-    termsUrl: getSetting("TERMS_URL"),
-    privacyUrl: getSetting("PRIVACY_URL"),
-    companyName: getSetting("COMPANY_NAME"),
+    ogImage: get("SITE_OG_IMAGE"),
+    favicon: get("SITE_FAVICON") || "/favicon.svg",
+    noindex: flag("SITE_NOINDEX", false, get),
+    gaId: get("ANALYTICS_GA_ID"),
+    plausibleDomain: get("ANALYTICS_PLAUSIBLE_DOMAIN"),
+    termsUrl: get("TERMS_URL"),
+    privacyUrl: get("PRIVACY_URL"),
+    companyName: get("COMPANY_NAME"),
   };
 }
 

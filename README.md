@@ -62,3 +62,17 @@ Run **one** always-on Node process (`npm run build && npm run start`) and set `D
 `CREDENTIAL_ENCRYPTION_KEY`, `OPENAI_API_KEY`, and `ADMIN_EMAILS`. Without Postgres, give it a persistent disk for
 `DATA_DIR`. Serverless hosts can't hold a phone call's WebSockets. Point Twilio's "A call comes in" webhook at `https://<app>/api/voice/inbound` and Plivo's answer URL
 at `https://<app>/api/voice/plivo`. Health check: `GET /api/health`.
+
+### Frontend on Vercel, backend on Render
+
+Render runs the whole app (store, scheduler, call relay); Vercel serves the pages and proxies every `/api/*` request to
+Render, so the browser only ever talks to the Vercel domain and session cookies work as usual.
+
+1. **Render** — New → Blueprint, pick this repo (`render.yaml`). Fill in the secrets it asks for. Set
+   `APP_URL` to the **Vercel** URL (OAuth redirects, carrier webhooks and email links point there and get proxied) and
+   `VOICE_STREAM_ORIGIN` to the Render URL (carriers' WebSockets can't go through Vercel).
+2. **Vercel** — import the repo and set only `API_ORIGIN=https://<your-service>.onrender.com`. No database or API keys
+   here: this deploy keeps no data and never opens the database.
+3. Point carrier webhooks and OAuth redirect URIs at the Vercel URL, as above.
+
+Use a Render plan that doesn't sleep: a sleeping backend drops calls and stops the scheduler.
