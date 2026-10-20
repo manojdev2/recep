@@ -4,15 +4,16 @@ export function Mark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 40" className={cn("size-8 shrink-0", className)} aria-hidden="true">
       <rect width="40" height="40" rx="13" className="fill-accent" />
+      {/* The Azentoo "A". Keep public/favicon.svg, public/icon-180.png and the docs topbar in step. */}
       <path
-        d="M11 29V12a2 2 0 0 1 2-2h8a7 7 0 0 1 0 14h-4l-6 5Z"
+        d="M11.5 30 18.1 12.4a2 2 0 0 1 3.8 0L28.5 30"
         fill="none"
         className="stroke-accent-fg"
         strokeWidth="3"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="m21 24 7 6" fill="none" className="stroke-accent-fg" strokeWidth="3" strokeLinecap="round" />
-      <path d="M18 16v3M22 15v5" className="stroke-accent-fg" strokeWidth="2" strokeLinecap="round" />
+      <path d="M15.6 24h8.8" fill="none" className="stroke-accent-fg" strokeWidth="3" strokeLinecap="round" />
       <circle cx="30.5" cy="9.5" r="3" fill="#ffffff" />
     </svg>
   );
