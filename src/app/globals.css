@@ -7,6 +7,7 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --font-landing: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-logo: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -32,6 +33,12 @@
 
   --shadow-border: var(--aether-shadow-border);
   --shadow-border-hover: var(--aether-shadow-border-hover);
+}
+
+/* Primary button colours. The app uses fluorescent; .consumer-site (landing pages) overrides them below. */
+:root {
+  --btn-primary-bg: #cbff3d;
+  --btn-primary-fg: #0d0d12;
 }
 
 @layer base {
@@ -292,6 +299,78 @@ html.dark {
 }
 .consumer-site section[id] {
   scroll-margin-top: 6.5rem;
+}
+
+/* ---- Landing pages: ElevenLabs-style monochrome, lime kept as a small accent ---- */
+.consumer-site {
+  --aether-bg: #0a0a0a;
+  --aether-surface: #141414;
+  --aether-raised: #1f1f1f;
+  --aether-fg: #fafafa;
+  --aether-muted: #a3a3a3;
+  --aether-subtle: #737373;
+  --aether-border: #262626;
+  --aether-line: #333333;
+  --aether-accent: #fafafa;
+  --aether-accent-fg: #0a0a0a;
+  --aether-ring: #fafafa;
+  --aether-shadow-border: 0 0 0 1px #262626;
+  --aether-shadow-border-hover: 0 0 0 1px #404040;
+  --btn-primary-bg: #fafafa;
+  --btn-primary-fg: #0a0a0a;
+  /* Re-resolve the Tailwind colour tokens here so they pick up the overrides above. */
+  --color-bg: var(--aether-bg);
+  --color-surface: var(--aether-surface);
+  --color-raised: var(--aether-raised);
+  --color-fg: var(--aether-fg);
+  --color-muted: var(--aether-muted);
+  --color-subtle: var(--aether-subtle);
+  --color-border: var(--aether-border);
+  --color-line: var(--aether-line);
+  --color-accent: var(--aether-accent);
+  --color-accent-fg: var(--aether-accent-fg);
+  --color-ring: var(--aether-ring);
+  --shadow-border: var(--aether-shadow-border);
+  --shadow-border-hover: var(--aether-shadow-border-hover);
+}
+html.light .consumer-site {
+  --aether-bg: #ffffff;
+  --aether-surface: #fafafa;
+  --aether-raised: #f2f2f2;
+  --aether-fg: #000000;
+  --aether-muted: #555555;
+  --aether-subtle: #7a7a7a;
+  --aether-border: #e8e8e8;
+  --aether-line: #dddddd;
+  --aether-accent: #000000;
+  --aether-accent-fg: #ffffff;
+  --aether-ring: #000000;
+  --aether-shadow-border: 0 0 0 1px #e8e8e8;
+  --aether-shadow-border-hover: 0 0 0 1px #c8c8c8;
+  --btn-primary-bg: #000000;
+  --btn-primary-fg: #ffffff;
+}
+/* ElevenLabs sets headings in Waldenburg Light; Inter 300 at its display optical size is the free stand-in. */
+.consumer-site {
+  font-optical-sizing: auto;
+}
+.consumer-site h1,
+.consumer-site .section-title {
+  font-weight: 300;
+  letter-spacing: -0.03em;
+}
+.consumer-site h3 {
+  font-weight: 500;
+}
+.consumer-site h1 .text-accent {
+  color: var(--aether-subtle);
+}
+.consumer-site .new-hero {
+  background: radial-gradient(at 50% 62%, #cbff3d24, #0000 48%);
+}
+.consumer-site .footer-garden {
+  color: var(--aether-fg);
+  background: var(--aether-raised);
 }
 .app-page-body > .p-4,
 .app-page-body > .p-6 {
@@ -582,10 +661,10 @@ button:focus-visible {
   box-shadow: 0 10px 30px -18px #05061a;
 }
 .note-icon {
-  background: var(--consumer-lilac);
+  background: #cbff3d;
   width: 34px;
   height: 34px;
-  color: var(--aether-accent);
+  color: #0d0d12;
   border-radius: 50%;
   place-items: center;
   margin-bottom: 14px;
@@ -659,7 +738,15 @@ button:focus-visible {
   background: radial-gradient(circle, #cbff3d14, #0000 65%);
 }
 .closing-garden {
-  background: var(--consumer-peach);
+  background: linear-gradient(135deg, #ebffa8, #dcff70);
+}
+.dark .closing-garden {
+  background: linear-gradient(135deg, #1e2510, #2a3a0c);
+}
+.closing-check {
+  background: #cbff3d;
+  color: #0d0d12;
+  box-shadow: 0 6px 16px -6px #a8db1f;
 }
 .closing-note {
   z-index: 2;
@@ -672,7 +759,7 @@ button:focus-visible {
   box-shadow: 0 25px 60px -35px #0d0d1240;
 }
 .closing-orbit {
-  border: 1px solid #a8db1f50;
+  border: 1.5px solid #8fc20f99;
   border-radius: 50%;
   width: 320px;
   height: 260px;
@@ -681,7 +768,7 @@ button:focus-visible {
 }
 .closing-orbit:before {
   content: "";
-  border: 1px solid #a8db1f40;
+  border: 1.5px solid #8fc20f80;
   border-radius: 50%;
   position: absolute;
   inset: 22px -20px;

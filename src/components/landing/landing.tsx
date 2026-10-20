@@ -79,7 +79,11 @@ export function Landing({ name, supportEmail, companyName, termsUrl, privacyUrl,
             </div>
             <p className="mt-4 text-xs text-muted">Start free · Phone & website · Bookings & CRM · Connected apps</p>
           </div>
-          <div id="demo" className="experience-stage relative mx-auto mt-10 max-w-5xl scroll-mt-24">
+          <div id="demo" className="relative mx-auto mt-10 max-w-7xl scroll-mt-24 overflow-hidden rounded-[2rem] border border-border">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/hero-banner.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-bg/15 dark:bg-bg/55" aria-hidden="true" />
+            <div className="experience-stage relative mx-auto max-w-5xl px-4 py-10 sm:px-10 sm:py-16">
             <div className="experience-note experience-note-left">
               <span className="note-icon">
                 <Phone className="size-4" />
@@ -94,10 +98,11 @@ export function Landing({ name, supportEmail, companyName, termsUrl, privacyUrl,
               <p className="text-xs text-muted">The next appointment</p>
               <p className="mt-1 text-sm font-medium">One less thing to juggle.</p>
             </div>
-            <div className="relative z-10 mx-auto max-w-[520px]">
+            <div className="relative z-10 mx-auto max-w-[560px] rounded-[2rem] border border-border bg-surface/90 p-5 shadow-[0_30px_80px_-40px_#0d0d1250] backdrop-blur-xl sm:p-7">
               <DemoPanel />
+              <p className="mt-4 text-center text-xs text-muted">Live AI demo · The microphone stays on only while a conversation is running.</p>
             </div>
-            <p className="relative z-10 mt-4 text-center text-xs text-muted">Live AI demo · The microphone stays on only while a conversation is running.</p>
+            </div>
           </div>
         </section>
 
@@ -255,7 +260,7 @@ export function Landing({ name, supportEmail, companyName, termsUrl, privacyUrl,
             <div className="closing-art relative mt-12 flex min-h-64 items-center justify-center lg:mt-0" aria-hidden="true">
               <div className="closing-orbit" />
               <div className="closing-note">
-                <span className="mb-5 inline-grid size-10 place-items-center rounded-full bg-accent/10 text-accent">
+                <span className="closing-check mb-5 inline-grid size-10 place-items-center rounded-full">
                   <Check className="size-5" />
                 </span>
                 <p className="text-xs text-muted">Today’s to-do</p>

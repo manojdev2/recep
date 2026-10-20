@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&family=Sora:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap"
         />
       </head>
       <body className="bg-bg text-fg antialiased">
