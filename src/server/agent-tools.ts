@@ -6,8 +6,9 @@ import { unseal } from "./crypto";
 import { db, nowIso, save } from "./db";
 import { emit } from "./events";
 import { searchPassages } from "./extract";
+import { attachPaymentLink, matchMenu, menuFor, money, newOrder, orderTotal } from "./orders";
 import { bookSlot, cancelBooking, openSlots, spokenTime, workspaceZone, zonedInstant } from "./slots";
-import type { Agent, Conversation } from "./types";
+import type { Agent, Conversation, OrderItem } from "./types";
 
 const str = { type: "string" } as const;
 
@@ -39,6 +40,30 @@ const SCHEMAS: Record<string, { description?: string; properties: Record<string,
   create_ticket: { properties: { subject: str, details: str, contact: str }, required: ["subject"] },
   transfer_human: { properties: { brief: { type: "string", description: "A short written brief for the person taking over." } }, required: ["brief"] },
   transfer_call: { properties: { brief: str, destination: { type: "string", description: "Phone number or SIP address." } }, required: ["brief"] },
+  take_order: {
+    properties: {
+      items: {
+        type: "array",
+        description: "What the caller is ordering, using the menu's item names.",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string", description: "Menu item name." },
+            qty: { type: "number", description: "How many." },
+            note: { type: "string", description: "Optional: milk, no onions, allergy note." },
+          },
+          required: ["name", "qty"],
+        },
+      },
+      name: { type: "string", description: "Caller's name for the order." },
+      contact: { type: "string", description: "Phone number or email." },
+      fulfilment: { type: "string", enum: ["pickup", "delivery"] },
+      ready_time: { type: "string", description: "When they want it, in their words: '6pm', 'in 20 minutes', 'as soon as possible'." },
+      address: { type: "string", description: "Delivery address (delivery only)." },
+      notes: str,
+    },
+    required: ["items", "name"],
+  },
   lookup_order: { properties: { order: { type: "string", description: "Order number." }, email: str } },
   search_catalog: { properties: { query: str }, required: ["query"] },
   send_sms: { properties: { to: str, body: str }, required: ["to", "body"] },
@@ -54,11 +79,19 @@ export function toolSpecs(agentId: string): ToolSpec[] {
       const def = TOOL_CATALOG.find((d) => d.key === t.toolKey);
       const schema = SCHEMAS[t.toolKey];
       if (!def || !schema) return null;
+      // The model only knows the menu from here, so it can't offer (or price) what isn't on it.
+      let description: string = def.description;
+      if (t.toolKey === "take_order") {
+        const menu = menuFor(agentId);
+        description = menu.items.length
+          ? `${def.description} Menu: ${menu.items.map((i) => `${i.name} ${money(i.priceCents, menu.currency)}`).join("; ")}.`
+          : `${def.description} No menu is set up yet: take the order in the caller's words; the team will confirm the price.`;
+      }
       return {
         type: "function" as const,
         function: {
           name: t.toolKey,
-          description: def.description,
+          description,
           parameters: { type: "object", properties: schema.properties, required: schema.required ?? [] },
         },
       };
@@ -66,8 +99,11 @@ export function toolSpecs(agentId: string): ToolSpec[] {
     .filter((x): x is ToolSpec => x !== null);
 }
 
-/** `callerText`: the caller's latest words, when the channel has them as text. */
-export type ToolContext = { agent: Agent; conversation: Conversation; callerText?: string };
+/**
+ * `callerText`: the caller's latest words, when the channel has them as text.
+ * `recentCallerText`: a live call's last few transcribed caller lines (the transcript is only saved at hang-up).
+ */
+export type ToolContext = { agent: Agent; conversation: Conversation; callerText?: string; recentCallerText?: string[] };
 
 /** Words a caller uses when they want an existing booking at a different time. */
 const MOVE_WORDS = /\b(move|moving|change|changing|reschedul\w*|instead|switch|swap|different|earlier|later|another (time|day)|push (it )?back|bring (it )?forward|rather)\b/i;
@@ -215,7 +251,7 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
     }
     case "book_appointment": {
       const id = s(args.slot_id);
-      const slot =
+      let slot =
         data.slots.find((x) => x.id === id && x.agentId === agent.id) ??
         data.slots.find((x) => x.agentId === agent.id && x.status === "open" && spokenTime(x.startsAt, zone).toLowerCase() === id.toLowerCase());
       if (!slot) {
@@ -233,6 +269,11 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
       if (slot.status === "booked" && slot.conversationId === conversation.id) {
         return { booked: true, when: spokenTime(slot.startsAt, zone), name: slot.bookedName, confirmation: slot.confirmation, note: "Already booked earlier in this conversation." };
       }
+      // A time with several seats (tables): another seat at the same time will do.
+      if (slot.status !== "open") {
+        const startsAt = slot.startsAt;
+        slot = data.slots.find((x) => x.agentId === agent.id && x.status === "open" && x.startsAt === startsAt) ?? slot;
+      }
       if (slot.status !== "open") return { booked: false, error: "That time was just taken. Offer the next open time." };
       if (new Date(slot.startsAt).getTime() <= Date.now()) return { booked: false, error: "That time has passed. Call list_slots and offer a later one." };
       const name = s(args.name);
@@ -241,23 +282,29 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
       const previous = data.slots.find(
         (x) => x.agentId === agent.id && x.conversationId === conversation.id && x.status === "booked" && new Date(x.startsAt).getTime() > Date.now(),
       );
+      if (previous && previous.startsAt === slot.startsAt) {
+        return { booked: true, when: spokenTime(previous.startsAt, zone), name: previous.bookedName, confirmation: previous.confirmation, note: "Already booked earlier in this conversation." };
+      }
       if (previous && args.reschedule !== true) {
         return {
           booked: false,
           error: `This caller is already booked for ${spokenTime(previous.startsAt, zone)} (confirmation ${previous.confirmation}). Don't book again. If they want to move it, confirm, then call book_appointment with reschedule: true.`,
         };
       }
-      // Models read "yes, book it" as the go-ahead to move. On text channels, only move when the caller's own
-      // words since that booking ask for a change or name this new time.
-      if (previous && ctx.callerText !== undefined) {
-        const since = previous.bookedAt ?? "";
-        const said = [
-          ...data.messages.filter((m) => m.conversationId === conversation.id && m.role === "user" && m.created_at >= since).map((m) => m.content),
-          ctx.callerText,
-        ];
-        const asked = said.some(
-          (t) => MOVE_WORDS.test(t) || dayFilter(t, zone, true)?.exact?.getTime() === new Date(slot.startsAt).getTime(),
-        );
+      // Models read "yes, book it" as the go-ahead to move. Only move when the caller's own words since
+      // that booking (on a live call, their last few lines) ask for a change or name this new time.
+      const said =
+        ctx.callerText !== undefined
+          ? [
+              ...data.messages
+                .filter((m) => m.conversationId === conversation.id && m.role === "user" && m.created_at >= (previous?.bookedAt ?? ""))
+                .map((m) => m.content),
+              ctx.callerText,
+            ]
+          : ctx.recentCallerText;
+      if (previous && said) {
+        const target = slot.startsAt;
+        const asked = said.some((t) => MOVE_WORDS.test(t) || dayFilter(t, zone, true)?.exact?.getTime() === new Date(target).getTime());
         if (!asked) {
           return {
             booked: false,
@@ -336,6 +383,69 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
       const docs = data.knowledge.filter((k) => k.agentIds.includes(agent.id));
       const hits = searchPassages(docs, s(args.query), 3);
       return hits.length ? { results: hits.map((h) => ({ title: h.title, text: h.text.slice(0, 600) })) } : { results: [], note: "Nothing in the catalog matches." };
+    }
+    case "take_order": {
+      const menu = menuFor(agent.id);
+      const raw = Array.isArray(args.items) ? (args.items as Record<string, unknown>[]) : [];
+      const items: OrderItem[] = [];
+      const unknown: string[] = [];
+      for (const r of raw) {
+        const qty = Math.max(1, Math.min(99, Math.round(Number(r?.qty) || 1)));
+        const wanted = s(r?.name);
+        if (!wanted) continue;
+        const hit = menu.items.length ? matchMenu(menu, wanted) : undefined;
+        if (menu.items.length && !hit) unknown.push(wanted);
+        else items.push({ name: hit?.name ?? wanted, qty, unitCents: hit ? hit.priceCents : null, note: s(r?.note) });
+      }
+      if (unknown.length) {
+        return { placed: false, error: `Not on the menu (or unclear which one): ${unknown.join(", ")}. Offer only menu items.`, menu: menu.items.map((i) => i.name) };
+      }
+      if (!items.length) return { placed: false, error: "Ask what they would like first." };
+      const name = s(args.name);
+      if (!name) return { placed: false, error: "Ask for a name for the order first." };
+      const fulfilment = s(args.fulfilment) === "delivery" ? "delivery" : "pickup";
+      const address = s(args.address);
+      if (fulfilment === "delivery" && !address) return { placed: false, error: "Ask for the delivery address first." };
+      const totalCents = orderTotal(items);
+      const contact = s(args.contact) || conversation.callerContact || "";
+      // Callers confirm twice; a second call in the same conversation changes the order instead of adding one.
+      const existing = data.orders.find((o) => o.conversationId === conversation.id && o.status === "new" && o.payment.status !== "paid");
+      const fields = { name, contact, items, fulfilment, readyAt: s(args.ready_time), address, notes: s(args.notes), currency: menu.currency, totalCents } as const;
+      const order = existing ?? newOrder({ ...fields, userId: agent.userId, agentId: agent.id, conversationId: conversation.id });
+      if (existing) {
+        const changed = JSON.stringify(existing.items) !== JSON.stringify(items) || existing.totalCents !== totalCents;
+        Object.assign(existing, fields, { updatedAt: nowIso() });
+        // A changed basket needs a new link for the new amount.
+        if (changed) existing.payment = { status: "none", url: null, sessionId: null };
+        save();
+      }
+      let paymentUrl = order.payment.url;
+      let paymentNote = "";
+      if (!paymentUrl) {
+        try {
+          paymentUrl = await attachPaymentLink(order);
+        } catch (e) {
+          paymentNote = `The payment link could not be made (${e instanceof Error ? e.message : "Stripe error"}). They can pay on collection.`;
+        }
+      }
+      const total = totalCents === null ? null : money(totalCents, menu.currency);
+      const summary = items.map((i) => `${i.qty} × ${i.name}${i.note ? ` (${i.note})` : ""}`).join(", ");
+      conversation.callerName = conversation.callerName || name;
+      conversation.callerContact = conversation.callerContact || contact || null;
+      setOutcome(conversation, "order", `Order ${order.reference}`, `${name}: ${summary}${total ? ` — ${total}` : ""}.`);
+      if (!existing) emit(agent.userId, "order.placed", { reference: order.reference, name, contact, items: summary, total, fulfilment, readyAt: order.readyAt, agentName: agent.name });
+      return {
+        placed: true,
+        ...(existing ? { note: "Updated the order already taken in this conversation." } : {}),
+        reference: order.reference,
+        items: summary,
+        total: total ?? "to be confirmed by the team",
+        ...(paymentUrl
+          ? conversation.channel === "phone"
+            ? { payment: "A secure payment link was created for the team to text. Don't read it out; say they can pay by that link or on collection." }
+            : { payment_url: paymentUrl, payment: "Share this secure link to pay by card. Never take card details yourself." }
+          : { payment: paymentNote || "Payment is taken on collection." }),
+      };
     }
     case "lookup_order": {
       const link = data.agentConnections

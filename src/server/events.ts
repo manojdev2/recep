@@ -2,7 +2,7 @@ import "server-only";
 import { db } from "./db";
 import { enqueue } from "./jobs";
 
-export const WEBHOOK_EVENTS = ["appointment.booked", "lead.created", "form.submitted", "call.completed"] as const;
+export const WEBHOOK_EVENTS = ["appointment.booked", "order.placed", "lead.created", "form.submitted", "call.completed"] as const;
 export type EventName = (typeof WEBHOOK_EVENTS)[number];
 
 /** Fan an event out to the workspace's webhooks and Google Sheet. */

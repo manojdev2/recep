@@ -376,6 +376,13 @@ export const LANGUAGES = [
       group: "workflow",
     },
     {
+      key: "take_order",
+      name: "Take order",
+      description:
+        "Take a pickup or delivery order from your menu, total it, and send a payment link when Stripe is connected.",
+      group: "workflow",
+    },
+    {
       key: "lookup_order",
       name: "Lookup order",
       description:
@@ -1539,15 +1546,61 @@ export const TEMPLATES = [
       greeting:
         "Reservations. Are you booking a table, changing one, or checking tonight?",
       systemPrompt:
-        "You take reservations for a neighborhood restaurant.\nHours: Tuesday–Sunday, lunch 11:30–2:30, dinner 5:30–10. Closed Monday.\nAlways list_slots before offering times. Collect name, party size, phone, and any allergy note, then book_appointment.\nDo not promise a specific table. Parties of 8 or more go to transfer_human.\nConfirm date, time, and covers out loud. If full, offer the waitlist or the next open time.",
+        "You take reservations and takeaway orders for a neighborhood restaurant.\nHours: Tuesday–Sunday, lunch 11:30–2:30, dinner 5:30–10. Closed Monday.\nAlways list_slots before offering times. Collect name, party size, phone, and any allergy note, then book_appointment.\nDo not promise a specific table. Parties of 8 or more go to transfer_human.\nConfirm date, time, and covers out loud. If full, offer the waitlist or the next open time.\nFor takeaway, only offer what is on the menu. Read the order and the total back, then take_order. If it returns a payment link, share it; otherwise they pay on collection.",
       guardrails:
         "Never ask for or accept a card number, CVV, bank details, or a one-time passcode, even if the caller offers them. Send a secure payment link or transfer to a person.",
-      tools: ["list_slots", "book_appointment", "transfer_human"],
+      tools: ["list_slots", "book_appointment", "take_order", "transfer_human"],
+      menu: {
+        currency: "usd",
+        items: [
+          { name: "Margherita pizza", priceCents: 1400 },
+          { name: "Spaghetti carbonara", priceCents: 1650 },
+          { name: "Caesar salad", priceCents: 1100 },
+          { name: "Tiramisu", priceCents: 800 },
+        ],
+      },
       knowledge: [
         {
           title: "Hours and house rules (draft)",
           content:
             "Lunch Tue–Sun 11:30am–2:30pm. Dinner 5:30–10pm. Closed Monday. 90-minute hold on tables under 6. Patio is first-come. Corkage $25. Kids menu on request.",
+        },
+      ],
+    },
+    {
+      key: "cafe",
+      name: "Cafe orders & tables",
+      category: "Hospitality",
+      tagline: "Coffee orders ready on arrival, and a table when they stay.",
+      description:
+        "Takes pickup orders from your menu with a total and a payment link, and books tables.",
+      voiceId: "luna",
+      language: "en",
+      job: "book",
+      greeting:
+        "Hi, you've reached the cafe. Are you ordering ahead or booking a table?",
+      systemPrompt:
+        "You answer for a neighborhood cafe.\nHours: Monday–Saturday 7:30am–4pm, Sunday 8:30am–3pm.\nOrders: only offer what is on the menu. Ask for quantities, any milk or allergy notes, a name, a phone number, and a pickup time. Read the order and the total back, then take_order. If it returns a payment link, share it; otherwise they pay at the counter.\nTables: always list_slots first, collect name, party size, and phone, then book_appointment. Groups over 6 go to transfer_human.\nKeep it short and friendly.",
+      guardrails:
+        "Never ask for or accept a card number, CVV, bank details, or a one-time passcode, even if the caller offers them. Send a secure payment link or transfer to a person.",
+      tools: ["take_order", "list_slots", "book_appointment", "transfer_human"],
+      menu: {
+        currency: "usd",
+        items: [
+          { name: "Espresso", priceCents: 300 },
+          { name: "Flat white", priceCents: 450 },
+          { name: "Cappuccino", priceCents: 450 },
+          { name: "Latte", priceCents: 475 },
+          { name: "Croissant", priceCents: 375 },
+          { name: "Avocado toast", priceCents: 1050 },
+          { name: "Banana bread", priceCents: 400 },
+        ],
+      },
+      knowledge: [
+        {
+          title: "Cafe basics (draft)",
+          content:
+            "Oat, almond, and soy milk at no extra charge. Gluten-free bread available. Orders are usually ready in about 10 minutes. Outdoor seating is first-come. Dogs welcome outside.",
         },
       ],
     },

@@ -95,6 +95,8 @@ export function suggestedWindows(templateKey: string | null | undefined) {
         { weekday, startMin: 690, endMin: 870 },
         { weekday, startMin: 1050, endMin: 1320 },
       ]);
+    case "cafe":
+      return days([1, 2, 3, 4, 5, 6], 450, 960).concat(days([0], 510, 900));
     case "gym":
       return days([1, 2, 3, 4, 5], 360, 1320).concat(days([6, 0], 480, 1200));
     case "after_hours":
@@ -104,6 +106,11 @@ export function suggestedWindows(templateKey: string | null | undefined) {
   }
 }
 
+/** Tables a restaurant or cafe can seat at once; one chair everywhere else. */
+export function suggestedSeats(templateKey: string | null | undefined) {
+  return templateKey === "restaurant" || templateKey === "cafe" ? 4 : 1;
+}
+
 export function defaultHours(agentId: string, templateKey?: string | null): AgentHours {
-  return { agentId, slotMinutes: 30, horizonDays: 14, windows: suggestedWindows(templateKey), unset: false };
+  return { agentId, slotMinutes: 30, horizonDays: 14, windows: suggestedWindows(templateKey), unset: false, perSlot: suggestedSeats(templateKey) };
 }

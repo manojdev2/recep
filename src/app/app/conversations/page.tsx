@@ -30,13 +30,14 @@ const duration = (s: number) => (s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${(s
 
 function badgeText(c: Conv) {
   const k = c.outcome?.kind;
-  return k === "appointment" ? "booked" : k === "lead" ? "lead" : k === "ticket" ? "ticket" : c.resolved ? "resolved" : "open";
+  return k === "appointment" ? "booked" : k === "order" ? "order" : k === "lead" ? "lead" : k === "ticket" ? "ticket" : c.resolved ? "resolved" : "open";
 }
 
 function outcomeLine(c: Conv) {
   const o = c.outcome;
   if (o) {
     if (o.kind === "appointment") return o.summary || `Booked ${o.title}.`;
+    if (o.kind === "order") return o.summary || `${o.title}.`;
     if (o.kind === "lead") return o.summary ? `Lead · ${o.title}. ${o.summary}` : `Lead captured · ${o.title}.`;
     if (o.kind === "ticket") return `Ticket opened · ${o.title}.`;
     if (o.kind === "transfer") return o.summary || "Handed to a human.";
@@ -50,6 +51,7 @@ function outcomeLine(c: Conv) {
 function outcomeTitle(c: Conv) {
   const k = c.outcome?.kind;
   if (k === "appointment") return c.outcome!.title;
+  if (k === "order") return c.outcome!.title;
   if (k === "lead") return "Lead captured";
   if (k === "ticket") return "Ticket opened";
   if (k === "transfer") return "Handed off";

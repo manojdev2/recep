@@ -10,6 +10,7 @@ import { demo, demoVoice } from "./demo";
 import { design } from "./design";
 import { hours } from "./hours";
 import { knowledge } from "./knowledge";
+import { orders } from "./orders";
 import { outcomes } from "./outcomes";
 import { setup } from "./setup";
 import { site } from "./site";
@@ -30,6 +31,7 @@ export const registry = {
   design,
   hours,
   knowledge,
+  orders,
   outcomes,
   setup,
   site,

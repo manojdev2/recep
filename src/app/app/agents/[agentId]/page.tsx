@@ -201,13 +201,74 @@ function Rehearse({ agentId, open, onOpenChange }: { agentId: string; open: bool
 
 type SlotRow = ApiResult<"outcomes", "slots">[number];
 
+// ---- Menu (take_order) -------------------------------------------------------------------
+
+type MenuRow = { name: string; price: string };
+
+function MenuEditor({ agentId }: { agentId: string }) {
+  const qc = useQueryClient();
+  const menu = useQuery({ queryKey: ["menu", agentId], queryFn: () => api.orders.menu(agentId) });
+  const [draft, setDraft] = useState<{ currency: string; rows: MenuRow[] } | null>(null);
+  const loaded = menu.data && { currency: menu.data.currency.toUpperCase(), rows: menu.data.items.map((i) => ({ name: i.name, price: (i.priceCents / 100).toFixed(2) })) };
+  const value = draft ?? loaded;
+  const save = useMutation({
+    mutationFn: () => api.orders.saveMenu({ agentId, currency: value!.currency, items: value!.rows.map((r) => ({ name: r.name, price: r.price })) }),
+    onSuccess: async (out) => {
+      await qc.invalidateQueries({ queryKey: ["menu", agentId] });
+      setDraft(null);
+      toast.success(`Menu saved · ${out.items} item${out.items === 1 ? "" : "s"}`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  if (!value) return <Skeleton className="h-24 rounded-xl" />;
+  const edit = (next: { currency: string; rows: MenuRow[] }) => setDraft(next);
+  const setRow = (i: number, patch: Partial<MenuRow>) => edit({ ...value, rows: value.rows.map((r, j) => (j === i ? { ...r, ...patch } : r)) });
+  return (
+    <div className="grid gap-3 rounded-xl bg-raised px-4 py-4">
+      <div className="flex items-center justify-between gap-3">
+        <span>
+          <span className="block text-sm font-medium">Menu</span>
+          <span className="block text-xs text-muted">The line only takes orders for these, at these prices.</span>
+        </span>
+        <Input aria-label="Currency" value={value.currency} maxLength={3} onChange={(e) => edit({ ...value, currency: e.target.value.toUpperCase() })} className="h-8 w-16 text-center" />
+      </div>
+      <ul className="grid gap-1.5">
+        {value.rows.map((r, i) => (
+          <li className="flex items-center gap-2" key={i}>
+            <Input aria-label="Item name" placeholder="Flat white" value={r.name} onChange={(e) => setRow(i, { name: e.target.value })} className="h-8 flex-1" />
+            <Input aria-label="Price" inputMode="decimal" placeholder="4.50" value={r.price} onChange={(e) => setRow(i, { price: e.target.value })} className="h-8 w-20 text-right tabular-nums" />
+            <Button type="button" size="sm" variant="ghost" className="h-8 px-2" aria-label="Remove item" onClick={() => edit({ ...value, rows: value.rows.filter((_, j) => j !== i) })}>
+              <Trash2 className="size-3.5" />
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <div className="flex items-center justify-between gap-2">
+        <Button type="button" size="sm" variant="ghost" onClick={() => edit({ ...value, rows: [...value.rows, { name: "", price: "" }] })}>
+          Add item
+        </Button>
+        <Button type="button" size="sm" variant="secondary" disabled={!draft || save.isPending} onClick={() => save.mutate()}>
+          {save.isPending ? "Saving…" : "Save menu"}
+        </Button>
+      </div>
+      <p className="text-xs text-subtle">
+        To take card payments, connect your Stripe account in the Apps tab. Customers get a secure Stripe link; card details never pass through the line.
+      </p>
+    </div>
+  );
+}
+
 function Diary({ slots, loading, generating, onGenerate }: { slots?: SlotRow[]; loading: boolean; generating: boolean; onGenerate: () => void }) {
-  const days: { day: string; items: SlotRow[] }[] = [];
+  // A time with several seats (tables) shows once, with who has booked and what is left.
+  const days: { day: string; items: { startsAt: string; booked: SlotRow[]; open: number }[] }[] = [];
   for (const s of slots ?? []) {
     const day = new Date(s.startsAt).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
-    const last = days.at(-1);
-    if (last && last.day === day) last.items.push(s);
-    else days.push({ day, items: [s] });
+    let last = days.at(-1);
+    if (!last || last.day !== day) days.push((last = { day, items: [] }));
+    let time = last.items.find((t) => t.startsAt === s.startsAt);
+    if (!time) last.items.push((time = { startsAt: s.startsAt, booked: [], open: 0 }));
+    if (s.status === "booked") time.booked.push(s);
+    else if (s.status === "open") time.open++;
   }
   const booked = (slots ?? []).filter((s) => s.status === "booked").length;
   return (
@@ -240,19 +301,22 @@ function Diary({ slots, loading, generating, onGenerate }: { slots?: SlotRow[]; 
             <div key={d.day}>
               <p className="mb-2 text-xs tracking-[0.16em] text-subtle uppercase">{d.day}</p>
               <ul className="grid gap-1.5">
-                {d.items.map((s) => (
-                  <li className="flex items-center justify-between gap-3 rounded-xl bg-raised px-4 py-3" key={s.id}>
+                {d.items.map((t) => (
+                  <li className="flex items-center justify-between gap-3 rounded-xl bg-raised px-4 py-3" key={t.startsAt}>
                     <span className="text-sm font-medium tabular-nums">
-                      {new Date(s.startsAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+                      {new Date(t.startsAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
                     </span>
-                    {s.status === "booked" ? (
-                      <span className="min-w-0 text-right">
-                        <span className="block truncate text-sm">{s.bookedName || "Booked"}</span>
-                        {s.bookedContact ? <span className="block truncate text-xs text-subtle">{s.bookedContact}</span> : null}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-subtle">Open</span>
-                    )}
+                    <span className="min-w-0 text-right">
+                      {t.booked.map((s) => (
+                        <span className="block truncate text-sm" key={s.id}>
+                          {s.bookedName || "Booked"}
+                          {s.bookedContact ? <span className="text-xs text-subtle"> · {s.bookedContact}</span> : null}
+                        </span>
+                      ))}
+                      {t.open > 0 ? (
+                        <span className="block text-xs text-subtle">{t.booked.length || t.open > 1 ? `${t.open} open` : "Open"}</span>
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -768,6 +832,7 @@ export default function StudioPage() {
                     </label>
                   );
                 })}
+                {tools.some((x) => x.toolKey === "take_order" && x.enabled) ? <MenuEditor agentId={agentId} /> : null}
               </div>
             </div>
           )}

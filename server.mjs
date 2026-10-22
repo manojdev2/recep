@@ -148,7 +148,8 @@ function relay(carrier, url) {
           try {
             args = JSON.parse(ev.arguments || "{}");
           } catch {}
-          const output = await internal("/api/voice/tool", { call: callId, name: ev.name, args }).catch((e) => ({ error: e.message }));
+          const said = transcript.filter((t) => t.role === "user").map((t) => t.content);
+          const output = await internal("/api/voice/tool", { call: callId, name: ev.name, args, said }).catch((e) => ({ error: e.message }));
           toModel({ type: "conversation.item.create", item: { type: "function_call_output", call_id: ev.call_id, output: JSON.stringify(output) } });
           toModel({ type: "response.create" });
           if (["end_call", "transfer_human", "transfer_call"].includes(ev.name) && output?.hangup) setTimeout(() => finish(), 4000);
