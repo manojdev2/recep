@@ -68,7 +68,7 @@ function Orders() {
       {orders.data.map((o) => {
         const pay = PAYMENT[o.payment.status];
         return (
-          <li className={`grid items-center gap-2 px-4 py-3.5 sm:gap-4 sm:px-6 ${cols}`} key={o.id}>
+          <li className={`grid items-center gap-2 px-4 py-3.5 sm:gap-3 sm:px-6 ${cols}`} key={o.id}>
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
                 {o.name} <span className="text-xs font-normal text-subtle">#{o.reference}</span>
@@ -132,15 +132,19 @@ export default function ResultsPage() {
       <PageBody>
         {tab === "bookings" &&
           (bookings.isPending ? (
-            <RowsSkeleton colsClass="sm:grid-cols-[12rem_minmax(0,1fr)_10rem_10rem]" />
+            <RowsSkeleton colsClass="sm:grid-cols-[minmax(8.5rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]" />
           ) : bookings.data && bookings.data.length > 0 ? (
-            <DataTable columns={["When", "Who", "Line", "Contact"]} colsClass="sm:grid-cols-[12rem_minmax(0,1fr)_10rem_10rem]">
+            <DataTable columns={["When", "Who", "Line", "Contact"]} colsClass="sm:grid-cols-[minmax(8.5rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
               {bookings.data.map((b) => (
-                <li className="grid items-center gap-1 px-4 py-3.5 sm:grid-cols-[12rem_minmax(0,1fr)_10rem_10rem] sm:gap-4 sm:px-6" key={b.id}>
-                  <span className="text-sm font-medium">{b.label}</span>
-                  <span className="text-sm">{b.bookedName || "—"}</span>
-                  <span className="text-sm text-muted">{b.agentName}</span>
-                  <span className="text-sm text-muted">{b.bookedContact || "—"}</span>
+                <li className="grid items-center gap-1 px-4 py-3.5 sm:grid-cols-[minmax(8.5rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-3 sm:px-6" key={b.id}>
+                  <span className="text-sm font-medium whitespace-nowrap">{b.label}</span>
+                  <span className="truncate text-sm" title={b.bookedName}>
+                    {b.bookedName || "—"}
+                  </span>
+                  <span className="truncate text-sm text-muted" title={b.agentName}>
+                    {b.agentName}
+                  </span>
+                  <span className="truncate text-sm text-muted">{b.bookedContact || "—"}</span>
                 </li>
               ))}
             </DataTable>
@@ -159,17 +163,19 @@ export default function ResultsPage() {
         {tab === "orders" && <Orders />}
         {tab === "leads" &&
           (leads.isPending ? (
-            <RowsSkeleton colsClass="sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_10rem_7rem]" />
+            <RowsSkeleton colsClass="sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_6.5rem]" />
           ) : leads.data && leads.data.length > 0 ? (
-            <DataTable columns={["Name", "Interest", "Line", "Status"]} colsClass="sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_10rem_7rem]">
+            <DataTable columns={["Name", "Interest", "Line", "Status"]} colsClass="sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_6.5rem]">
               {leads.data.map((l) => (
-                <li className="grid items-center gap-1 px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_10rem_7rem] sm:gap-4 sm:px-6" key={l.id}>
+                <li className="grid items-center gap-1 px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_6.5rem] sm:gap-3 sm:px-6" key={l.id}>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium">{l.name}</span>
                     <span className="block truncate text-xs text-subtle">{l.contact || l.company}</span>
                   </span>
                   <span className="truncate text-sm text-muted">{l.interest || "—"}</span>
-                  <span className="text-sm text-muted">{l.agentName}</span>
+                  <span className="truncate text-sm text-muted" title={l.agentName}>
+                    {l.agentName}
+                  </span>
                   <Badge tone="live">{l.status}</Badge>
                 </li>
               ))}
@@ -179,16 +185,18 @@ export default function ResultsPage() {
           ))}
         {tab === "tickets" &&
           (tickets.isPending ? (
-            <RowsSkeleton colsClass="sm:grid-cols-[minmax(0,1.6fr)_10rem_7rem]" />
+            <RowsSkeleton colsClass="sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_6.5rem]" />
           ) : tickets.data && tickets.data.length > 0 ? (
-            <DataTable columns={["Subject", "Line", "Status"]} colsClass="sm:grid-cols-[minmax(0,1.6fr)_10rem_7rem]">
+            <DataTable columns={["Subject", "Line", "Status"]} colsClass="sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_6.5rem]">
               {tickets.data.map((t) => (
-                <li className="grid items-center gap-1 px-4 py-3.5 sm:grid-cols-[minmax(0,1.6fr)_10rem_7rem] sm:gap-4 sm:px-6" key={t.id}>
+                <li className="grid items-center gap-1 px-4 py-3.5 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_6.5rem] sm:gap-3 sm:px-6" key={t.id}>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium">{t.subject}</span>
                     <span className="block truncate text-xs text-subtle">{t.body || "—"}</span>
                   </span>
-                  <span className="text-sm text-muted">{t.agentName}</span>
+                  <span className="truncate text-sm text-muted" title={t.agentName}>
+                    {t.agentName}
+                  </span>
                   <Badge>{t.status}</Badge>
                 </li>
               ))}

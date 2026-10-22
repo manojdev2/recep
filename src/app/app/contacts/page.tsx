@@ -160,7 +160,7 @@ export default function ContactsPage() {
               <li key={c.id}>
                 <button
                   type="button"
-                  className="grid w-full items-center gap-1 px-4 py-3.5 text-left hover:bg-raised sm:grid-cols-[minmax(0,14rem)_11rem_minmax(0,1fr)_minmax(0,14rem)] sm:gap-4 sm:px-6"
+                  className="grid w-full items-center gap-1 px-4 py-3.5 text-left hover:bg-raised sm:grid-cols-[minmax(0,14rem)_11rem_minmax(0,1fr)_minmax(0,14rem)] sm:gap-3 sm:px-6"
                   onClick={() => setEditing(c)}
                 >
                   <span>
