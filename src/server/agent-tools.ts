@@ -69,6 +69,9 @@ export function toolSpecs(agentId: string): ToolSpec[] {
 /** `callerText`: the caller's latest words, when the channel has them as text. */
 export type ToolContext = { agent: Agent; conversation: Conversation; callerText?: string };
 
+/** Words a caller uses when they want an existing booking at a different time. */
+const MOVE_WORDS = /\b(move|moving|change|changing|reschedul\w*|instead|switch|swap|different|earlier|later|another (time|day)|push (it )?back|bring (it )?forward|rather)\b/i;
+
 function setOutcome(c: Conversation, kind: NonNullable<Conversation["outcome"]>["kind"], title: string, summary: string) {
   c.outcome = { kind, title, summary };
   if (kind !== "transfer") c.resolved = true;
@@ -243,6 +246,24 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
           booked: false,
           error: `This caller is already booked for ${spokenTime(previous.startsAt, zone)} (confirmation ${previous.confirmation}). Don't book again. If they want to move it, confirm, then call book_appointment with reschedule: true.`,
         };
+      }
+      // Models read "yes, book it" as the go-ahead to move. On text channels, only move when the caller's own
+      // words since that booking ask for a change or name this new time.
+      if (previous && ctx.callerText !== undefined) {
+        const since = previous.bookedAt ?? "";
+        const said = [
+          ...data.messages.filter((m) => m.conversationId === conversation.id && m.role === "user" && m.created_at >= since).map((m) => m.content),
+          ctx.callerText,
+        ];
+        const asked = said.some(
+          (t) => MOVE_WORDS.test(t) || dayFilter(t, zone, true)?.exact?.getTime() === new Date(slot.startsAt).getTime(),
+        );
+        if (!asked) {
+          return {
+            booked: false,
+            error: `The caller has not asked to move their booking. They are booked for ${spokenTime(previous.startsAt, zone)} (confirmation ${previous.confirmation}). Confirm that time; don't book or move anything.`,
+          };
+        }
       }
       if (previous) cancelBooking(previous);
       const contact = s(args.contact) || conversation.callerContact || "";
