@@ -309,8 +309,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const current = NAV.flatMap((g) => g.items).find((item) => isActive(pathname, item.to))?.label ?? "Receptionist";
 
   return (
-    <div className="consumer-app flex h-dvh overflow-hidden bg-bg text-fg md:gap-3 md:p-3">
-      <aside className="app-sidebar hidden h-full w-60 shrink-0 flex-col md:flex">
+    <div className="consumer-app flex h-dvh overflow-hidden bg-bg text-fg lg:gap-3 lg:p-3">
+      <aside className="app-sidebar hidden h-full w-60 shrink-0 flex-col lg:flex">
         <div className="flex h-[72px] shrink-0 items-center justify-between gap-2 px-3">
           <Link href="/" className="flex min-w-0 flex-1 items-center gap-2">
             <Mark className="size-8" />
@@ -354,8 +354,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         </div>
       </aside>
-      <div className="app-content-shell flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-surface md:rounded-[1.5rem] md:border md:border-border">
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-3 md:hidden">
+      <div className="app-content-shell flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-surface lg:rounded-[1.5rem] lg:border lg:border-border">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-3 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
             <Mark className="size-9" />
             <span className="truncate whitespace-nowrap text-base font-medium">{brandName}</span>
@@ -374,13 +374,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
         {menuOpen && (
-          <div className="max-h-[70dvh] shrink-0 overflow-y-auto border-b border-border md:hidden">
+          <div className="max-h-[70dvh] shrink-0 overflow-y-auto border-b border-border lg:hidden">
             {nav}
             {footer}
             {meet}
           </div>
         )}
-        <div className="hidden h-14 shrink-0 items-center justify-between gap-3 border-b border-border px-7 md:flex">
+        <div className="hidden h-14 shrink-0 items-center justify-between gap-3 border-b border-border px-7 lg:flex">
           <div className="flex items-center gap-2 text-xs text-muted">
             <span>Workspace</span>
             <ChevronRight className="size-3" />

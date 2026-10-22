@@ -104,7 +104,7 @@ export default function AnalyticsPage() {
             Export CSV
           </Button>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
           {tiles.map((t) => (
             <div className="rounded-2xl border border-border bg-surface px-5 py-5" key={t.k}>
               <p className="text-xs font-medium text-muted">{t.k}</p>

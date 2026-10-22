@@ -36,14 +36,23 @@ export default function AppointmentsPage() {
   });
   const [cancelling, setCancelling] = useState<{ id: string; booked_name: string; label: string } | null>(null);
   const cancel = useMutation({
-    mutationFn: (id: string) => api.tools.setSlotStatus({ id, status: "cancelled" }),
+    // An open time with several seats closes all of them at once.
+    mutationFn: async (ids: string | string[]) => {
+      for (const id of Array.isArray(ids) ? ids : [ids]) await api.tools.setSlotStatus({ id, status: "cancelled" });
+    },
     onSuccess: async () => {
       await refresh();
       setCancelling(null);
     },
     onError: (e: Error) => toast.error(e.message),
   });
-  const rows = slots.data ?? [];
+  // Open seats at the same time (tables) show as one row; bookings stay one row each.
+  const rows: ((typeof slots.data & {})[number] & { ids: string[] })[] = [];
+  for (const s of slots.data ?? []) {
+    const same = s.status === "open" && rows.find((r) => r.status === "open" && r.starts_at === s.starts_at && r.agent_name === s.agent_name);
+    if (same) same.ids.push(s.id);
+    else rows.push({ ...s, ids: [s.id] });
+  }
 
   return (
     <Page>
@@ -51,7 +60,7 @@ export default function AppointmentsPage() {
       <PageBody className="p-4 sm:p-6">
         <div className="grid max-w-5xl gap-6">
           <div className="grid gap-3 rounded-2xl bg-raised p-4 sm:flex sm:flex-wrap sm:items-end">
-            <label className="grid min-w-0 flex-1 gap-1.5">
+            <label className="grid min-w-0 flex-1 gap-1.5 sm:min-w-48">
               <Label>Agent</Label>
               <Select value={agentId} onValueChange={setAgentId}>
                 <SelectTrigger>
@@ -66,7 +75,7 @@ export default function AppointmentsPage() {
                 </SelectContent>
               </Select>
             </label>
-            <label className="grid min-w-0 flex-1 gap-1.5">
+            <label className="grid min-w-0 flex-1 gap-1.5 sm:min-w-56">
               <Label>When</Label>
               <Input type="datetime-local" value={at} onChange={(e) => setAt(e.target.value)} />
             </label>
@@ -78,16 +87,18 @@ export default function AppointmentsPage() {
             <DataTable columns={["When", "Agent", "Who", "Status"]} colsClass={COLS}>
               {rows.map((s) => (
                 <li className={`grid items-center gap-2 px-4 py-3 sm:px-6 ${COLS}`} key={s.id}>
-                  <span className="text-sm">{s.label}</span>
+                  <span className="text-sm whitespace-nowrap">{s.label}</span>
                   <span className="truncate text-sm text-muted">{s.agent_name}</span>
                   <span className="truncate text-sm">{(s.status === "booked" && (s.booked_name || s.booked_contact)) || "—"}</span>
                   <span className="flex items-center gap-2">
-                    <Badge tone={s.status === "booked" ? "live" : s.status === "cancelled" ? "warn" : "draft"}>{s.status}</Badge>
+                    <Badge tone={s.status === "booked" ? "live" : s.status === "cancelled" ? "warn" : "draft"}>
+                      {s.ids.length > 1 ? `${s.ids.length} open` : s.status}
+                    </Badge>
                     {s.status === "cancelled" ? null : (
                       <button
                         type="button"
                         className="text-xs text-muted hover:text-fg"
-                        onClick={() => (s.status === "booked" ? setCancelling(s) : cancel.mutate(s.id))}
+                        onClick={() => (s.status === "booked" ? setCancelling(s) : cancel.mutate(s.ids))}
                       >
                         Cancel
                       </button>

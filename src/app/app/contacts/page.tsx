@@ -155,15 +155,15 @@ export default function ContactsPage() {
       </div>
       <PageBody>
         {rows.length ? (
-          <DataTable columns={["Name", "Phone", "Company", "Email"]} colsClass="sm:grid-cols-[minmax(0,14rem)_11rem_minmax(0,1fr)_minmax(0,14rem)]">
+          <DataTable columns={["Name", "Phone", "Company", "Email"]} colsClass="sm:grid-cols-[minmax(0,1.2fr)_9.5rem_minmax(0,1fr)_minmax(0,1.3fr)]">
             {rows.map((c) => (
               <li key={c.id}>
                 <button
                   type="button"
-                  className="grid w-full items-center gap-1 px-4 py-3.5 text-left hover:bg-raised sm:grid-cols-[minmax(0,14rem)_11rem_minmax(0,1fr)_minmax(0,14rem)] sm:gap-3 sm:px-6"
+                  className="grid w-full items-center gap-1 px-4 py-3.5 text-left hover:bg-raised sm:grid-cols-[minmax(0,1.2fr)_9.5rem_minmax(0,1fr)_minmax(0,1.3fr)] sm:gap-3 sm:px-6"
                   onClick={() => setEditing(c)}
                 >
-                  <span>
+                  <span className="min-w-0">
                     <span className="block truncate text-sm font-medium">{c.name || "—"}</span>
                     {c.tags ? <span className="block truncate text-xs text-subtle">{c.tags}</span> : null}
                   </span>
