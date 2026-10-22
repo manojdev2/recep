@@ -29,6 +29,8 @@ Without any keys, receptionists answer from an offline preview. Add `XAI_API_KEY
 | `npm run admin:grant -- <email> super`  | Promote an account (stop the server first)               |
 | `npm run typecheck`                     | `tsc --noEmit`                                           |
 | `npm run test:api`                      | End-to-end check of every save path against a running app (`BASE=http://localhost:3000`) |
+| `npm run test:booking`                  | Booking, double-booking, moves and races through the real model (needs an AI key on the server) |
+| `npm run test:orders`                   | Cafe ordering, menu prices, card-detail refusal and restaurant tables through the real model |
 
 ### Demo mode
 
@@ -44,14 +46,15 @@ server.mjs                 Custom server: Next.js + WebSocket relay (Twilio/Pliv
 src/app/                   Pages: / (landing), /login, /app/* (workspace), /admin/*, /w/[agentId], /f/[formId]
 src/app/api/fn/[group]/[name]   The single route every server function goes through
 src/app/api/voice/*        Carrier webhooks and the relay's internal routes
-src/app/api/billing/stripe Stripe webhook
+src/app/api/billing/stripe Stripe webhook (plan subscriptions)
+src/app/pay/thanks         Where customers land after paying an order on the business's own Stripe
 src/app/api/connect/*      Connector OAuth (Google, Microsoft, Salesforce)
 src/app/api/auth/*         Email/password and Google sign-in; /api/admin/confirm for ADMIN_EMAILS
 src/server/api/*           Server functions, grouped (agents, calling, contacts, admin, …)
 src/server/                Store, auth, settings, AI engine, tools, jobs, telephony
 src/components/            UI (app shell, studio, orb, landing, …)
 public/docs/               The operator and user guide, served at /docs
-scripts/                   admin:grant and the test:api end-to-end check
+scripts/                   admin:grant and the test:api / test:booking / test:orders end-to-end checks
 ```
 
 Full documentation — including deployment, carrier setup, and every setting — is at `/docs` once the app is running.

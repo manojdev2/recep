@@ -6,9 +6,12 @@ import { RpcError } from "./rpc";
 import { getSetting } from "./settings";
 import { newId } from "@/lib/utils";
 
-/** Minimal Stripe client over fetch (form-encoded, like the official SDK). */
-export async function stripe<T = Record<string, unknown>>(method: "GET" | "POST", path: string, params?: Record<string, string>) {
-  const key = getSetting("STRIPE_SECRET_KEY");
+/**
+ * Minimal Stripe client over fetch (form-encoded, like the official SDK). Uses the platform's key
+ * unless `accountKey` (a business's own connected Stripe account) is given.
+ */
+export async function stripe<T = Record<string, unknown>>(method: "GET" | "POST", path: string, params?: Record<string, string>, accountKey?: string) {
+  const key = accountKey || getSetting("STRIPE_SECRET_KEY");
   if (!key) throw new RpcError("Card payments aren’t switched on for this workspace yet.");
   const qs = params ? new URLSearchParams(params).toString() : "";
   const started = Date.now();

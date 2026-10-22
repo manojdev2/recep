@@ -50,6 +50,9 @@ export function createAgent(userId: string, input: { templateKey?: string; draft
     agent = agentFromTemplate(tpl, id, userId, now);
     data.agents.push(agent);
     attachTools(id, tpl.tools, now);
+    // A sample menu, so ordering works on the first try; the owner edits it like any other draft.
+    const orderTool = "menu" in tpl && tpl.menu && data.agentTools.find((t) => t.agentId === id && t.toolKey === "take_order");
+    if (orderTool) orderTool.config = { menu: { currency: tpl.menu.currency, items: tpl.menu.items.map((i) => ({ ...i })) } };
     for (const k of tpl.knowledge) {
       data.knowledge.push({
         id: newId("doc"),

@@ -161,23 +161,26 @@ function AgentSection({ agent, hasZone }: { agent: AgentHours; hasZone: boolean 
   const [windows, setWindows] = useState(agent.windows);
   const [slot, setSlot] = useState(agent.slotMinutes);
   const [horizon, setHorizon] = useState(agent.horizonDays);
+  const [seats, setSeats] = useState(agent.perSlot);
   const [prevAgent, setPrevAgent] = useState(agent);
   if (agent !== prevAgent) {
     setPrevAgent(agent);
     setWindows(agent.windows);
     setSlot(agent.slotMinutes);
     setHorizon(agent.horizonDays);
+    setSeats(agent.perSlot);
   }
   const suggest = useMutation({
     mutationFn: () => api.hours.suggest({ agentId: agent.agentId }),
     onSuccess: (out) => {
       setWindows(out.windows);
       setSlot(out.slotMinutes);
+      setSeats(out.perSlot);
       toast.message("Filled in a starting point — check it before saving.");
     },
   });
   const save = useMutation({
-    mutationFn: () => api.hours.save({ agentId: agent.agentId, windows, slotMinutes: slot, horizonDays: horizon }),
+    mutationFn: () => api.hours.save({ agentId: agent.agentId, windows, slotMinutes: slot, horizonDays: horizon, perSlot: seats }),
     onSuccess: async (out) => {
       await qc.invalidateQueries();
       toast.success(`${out.created} appointment times available`);
@@ -192,14 +195,14 @@ function AgentSection({ agent, hasZone }: { agent: AgentHours; hasZone: boolean 
   });
   const invalid = windows.some((w) => w.endMin <= w.startMin);
   const dirty =
-    JSON.stringify(sortWindows(windows)) !== JSON.stringify(sortWindows(agent.windows)) || slot !== agent.slotMinutes || horizon !== agent.horizonDays;
+    JSON.stringify(sortWindows(windows)) !== JSON.stringify(sortWindows(agent.windows)) || slot !== agent.slotMinutes || horizon !== agent.horizonDays || seats !== agent.perSlot;
 
   return (
     <section className="rounded-xl bg-raised/60 p-5">
       <div className="flex flex-wrap items-baseline gap-2">
         <p className="text-xs tracking-wide text-subtle uppercase">{agent.agentName}</p>
         <span className="ml-auto text-xs text-muted">
-          {agent.openSlots} times open{agent.bookedSlots ? ` · ${agent.bookedSlots} booked` : ""}
+          {agent.openSlots} {agent.perSlot > 1 ? "places" : "times"} open{agent.bookedSlots ? ` · ${agent.bookedSlots} booked` : ""}
         </span>
       </div>
       {agent.fabricatedSlots > 0 ? (
@@ -227,6 +230,13 @@ function AgentSection({ agent, hasZone }: { agent: AgentHours; hasZone: boolean 
           <div className="flex items-center gap-1.5">
             <Input type="number" min={5} max={480} value={slot} onChange={(e) => setSlot(Number(e.target.value))} className="h-8 w-20" />
             <span>minutes</span>
+          </div>
+        </label>
+        <label className="text-xs text-muted">
+          <span className="mb-1 block">Bookings per time</span>
+          <div className="flex items-center gap-1.5">
+            <Input type="number" min={1} max={50} value={seats} onChange={(e) => setSeats(Number(e.target.value))} className="h-8 w-20" />
+            <span>tables or chairs</span>
           </div>
         </label>
         <label className="text-xs text-muted">

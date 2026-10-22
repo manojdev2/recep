@@ -126,6 +126,34 @@ x = await u.call("hours", "save", { agentId, windows, slotMinutes: 30, horizonDa
 ok("hours: save weekly hours", !x.error, x.error);
 x = await u.call("outcomes", "slots", agentId);
 ok("hours: diary generated", Array.isArray(x.result) && x.result.length > 20, `slots ${x.result?.length} ${x.error ?? ""}`);
+const singleSeat = x.result?.length;
+x = await u.call("hours", "save", { agentId, windows, slotMinutes: 30, horizonDays: 14, perSlot: 3 });
+ok("hours: save 3 bookings per time", !x.error, x.error);
+x = await u.call("hours", "get");
+const seated = x.result?.agents?.find((a) => a.agentId === agentId);
+ok("hours: bookings per time persisted", seated?.perSlot === 3, JSON.stringify(seated).slice(0, 200));
+ok("hours: diary has 3 open seats per time", seated?.openSlots === singleSeat * 3, `${singleSeat} times → ${seated?.openSlots} seats`);
+// The diary list is capped, so compare the first day's times only.
+x = await u.call("outcomes", "slots", agentId);
+const firstDay = (x.result ?? []).filter((s) => s.startsAt.slice(0, 10) === x.result?.[0]?.startsAt.slice(0, 10));
+ok("hours: each time listed three times", firstDay.length > 0 && firstDay.every((s) => firstDay.filter((o) => o.startsAt === s.startsAt).length === 3), `${firstDay.length} on the first day`);
+x = await u.call("hours", "save", { agentId, windows, slotMinutes: 30, horizonDays: 14, perSlot: 1 });
+x = await u.call("outcomes", "slots", agentId);
+ok("hours: back to one seat per time", x.result?.length === singleSeat, `${x.result?.length} vs ${singleSeat}`);
+
+// ---------- menu & orders ----------
+x = await u.call("orders", "saveMenu", { agentId, currency: "dollars", items: [{ name: "Cut", price: "45" }] });
+ok("menu: bad currency refused", !!x.error, JSON.stringify(x));
+x = await u.call("orders", "saveMenu", { agentId, currency: "gbp", items: [{ name: "Cut & blow-dry", price: "45" }, { name: "Fringe trim", price: "£8.50" }, { name: "", price: "" }] });
+ok("menu: save", x.result?.items === 2, JSON.stringify(x));
+x = await u.call("orders", "menu", agentId);
+ok("menu: saved with prices in pence", x.result?.currency === "gbp" && x.result?.items?.[1]?.priceCents === 850, JSON.stringify(x.result));
+x = await u.call("agents", "get", agentId);
+ok("menu: saving a menu turns on take_order", x.result?.tools?.some((t) => t.toolKey === "take_order" && t.enabled), JSON.stringify(x.result?.tools?.map((t) => t.toolKey)));
+x = await u.call("orders", "list");
+ok("orders: list", Array.isArray(x.result), JSON.stringify(x).slice(0, 200));
+x = await u.call("orders", "paymentLink", "ord_missing");
+ok("orders: payment link for a missing order refused", !!x.error && x.status < 500, JSON.stringify(x));
 
 // ---------- chat (offline preview without keys) ----------
 x = await u.call("chat", "reply", { agentId, speak: false, messages: [{ role: "user", content: "Do you have parking?" }] });

@@ -76,11 +76,13 @@ export function regenerateSlots(userId: string, hours: AgentHours) {
     return { created: 0, removed: before, orphanedBookings: 0 };
   }
   const booked = data.slots.filter((s) => s.agentId === hours.agentId && s.status === "booked");
-  // Every time still in the diary is taken: bookings, hand-opened times, and times blocked by
-  // hand (cancelled before anyone booked them). A cancelled booking frees its time again.
-  const taken = new Set(
-    data.slots.filter((s) => s.agentId === hours.agentId && !(s.status === "cancelled" && s.bookedAt)).map((s) => s.startsAt),
-  );
+  // Every seat still in the diary is taken: bookings, hand-opened times, and times blocked by
+  // hand (cancelled before anyone booked them). A cancelled booking frees its seat again.
+  const taken = new Map<string, number>();
+  for (const s of data.slots) {
+    if (s.agentId === hours.agentId && !(s.status === "cancelled" && s.bookedAt)) taken.set(s.startsAt, (taken.get(s.startsAt) ?? 0) + 1);
+  }
+  const perSlot = seatsPerTime(hours);
   const today = zonedToday(zone);
   const fresh: Slot[] = [];
   const created = nowIso();
@@ -92,24 +94,25 @@ export function regenerateSlots(userId: string, hours: AgentHours) {
         const at = zonedInstant(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), start, zone);
         if (at.getTime() <= now + 30 * 60_000) continue;
         const startsAt = at.toISOString();
-        if (taken.has(startsAt)) continue;
-        fresh.push({
-          id: newId("slot"),
-          userId,
-          agentId: hours.agentId,
-          startsAt,
-          endsAt: new Date(at.getTime() + hours.slotMinutes * 60_000).toISOString(),
-          status: "open",
-          bookedName: "",
-          bookedContact: "",
-          reason: "",
-          confirmation: "",
-          conversationId: null,
-          bookedAt: null,
-          generated: true,
-          fabricated: false,
-          createdAt: created,
-        });
+        for (let seat = taken.get(startsAt) ?? 0; seat < perSlot; seat++) {
+          fresh.push({
+            id: newId("slot"),
+            userId,
+            agentId: hours.agentId,
+            startsAt,
+            endsAt: new Date(at.getTime() + hours.slotMinutes * 60_000).toISOString(),
+            status: "open",
+            bookedName: "",
+            bookedContact: "",
+            reason: "",
+            confirmation: "",
+            conversationId: null,
+            bookedAt: null,
+            generated: true,
+            fabricated: false,
+            createdAt: created,
+          });
+        }
       }
     }
   }
@@ -127,16 +130,25 @@ export function regenerateSlots(userId: string, hours: AgentHours) {
 export function upcomingSlots(agentId: string) {
   const now = Date.now();
   return db()
-    .slots.filter((s) => s.agentId === agentId && s.status !== "cancelled" && new Date(s.startsAt).getTime() > now - 3600_000)
+    .slots.filter(
+      (s) => s.agentId === agentId && s.status !== "cancelled" && new Date(s.startsAt).getTime() > now - 3600_000,
+    )
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 }
 
+/** Open times, each time once even when it has several seats left. */
 export function openSlots(agentId: string, limit = 6, after?: Date) {
   const from = (after ?? new Date()).getTime();
+  const seen = new Set<string>();
   return db()
     .slots.filter((s) => s.agentId === agentId && s.status === "open" && new Date(s.startsAt).getTime() > from)
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+    .filter((s) => !seen.has(s.startsAt) && !!seen.add(s.startsAt))
     .slice(0, limit);
+}
+
+export function seatsPerTime(hours: AgentHours | undefined) {
+  return Math.min(50, Math.max(1, Math.round(hours?.perSlot ?? 1)));
 }
 
 function confirmationCode() {
@@ -189,7 +201,9 @@ export function refreshDiaries() {
   for (const h of data.hours) {
     const agent = data.agents.find((a) => a.id === h.agentId);
     if (!agent || h.unset || !h.windows.length || !workspaceZone(agent.userId)) continue;
-    const future = data.slots.filter((s) => s.agentId === h.agentId && s.status === "open" && new Date(s.startsAt).getTime() > now);
+    const future = data.slots.filter(
+      (s) => s.agentId === h.agentId && s.status === "open" && new Date(s.startsAt).getTime() > now,
+    );
     // Regenerate once less than half the horizon is left.
     const horizonEnd = now + (h.horizonDays / 2) * 864e5;
     if (future.some((s) => new Date(s.startsAt).getTime() > horizonEnd)) continue;

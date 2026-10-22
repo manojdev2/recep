@@ -164,6 +164,7 @@ export function seedDatabase(): Database {
       },
     ],
     slots: [],
+    orders: [],
     leads: [],
     tickets: [],
     transfers: [],

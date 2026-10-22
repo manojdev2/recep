@@ -215,13 +215,14 @@ You are on a live phone call. Speak ${lang}. Keep each reply to one or two short
   };
 }
 
-export async function relayTool(callId: string, name: string, args: Record<string, unknown>) {
+/** `said`: the caller's transcribed lines so far (the relay keeps the transcript until hang-up). */
+export async function relayTool(callId: string, name: string, args: Record<string, unknown>, said?: string[]) {
   const call = db().calls.find((c) => c.id === callId);
   const agent = call && db().agents.find((a) => a.id === call.agentId);
   const conversation = call && db().conversations.find((c) => c.id === call.conversationId);
   if (!agent || !conversation) return { error: "This call is no longer active." };
   try {
-    return await runTool(name, args, { agent, conversation });
+    return await runTool(name, args, { agent, conversation, recentCallerText: said?.slice(-3) });
   } catch (e) {
     return { error: e instanceof Error ? e.message : "That tool failed." };
   }

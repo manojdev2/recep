@@ -126,7 +126,7 @@ export type Conversation = {
   callerName: string | null;
   callerContact: string | null;
   callId: string | null;
-  outcome: { kind: "appointment" | "lead" | "ticket" | "transfer"; title: string; summary: string } | null;
+  outcome: { kind: "appointment" | "lead" | "ticket" | "transfer" | "order"; title: string; summary: string } | null;
   /** The times list_slots last offered, so later turns can book by id ("the first one"). */
   offeredSlots?: { id: string; when: string }[];
 };
@@ -158,6 +158,35 @@ export type Slot = {
   fabricated: boolean;
   createdAt: string;
 };
+
+export type OrderItem = { name: string; qty: number; unitCents: number | null; note: string };
+
+/** A food or takeaway order a receptionist took. Prices come from the owner's menu, never the model. */
+export type Order = {
+  id: string;
+  userId: string;
+  agentId: string;
+  conversationId: string | null;
+  reference: string;
+  name: string;
+  contact: string;
+  items: OrderItem[];
+  fulfilment: "pickup" | "delivery";
+  /** When the caller wants it, in their words ("6pm", "as soon as possible"). */
+  readyAt: string;
+  address: string;
+  notes: string;
+  currency: string;
+  /** Null when an item has no menu price. */
+  totalCents: number | null;
+  status: "new" | "ready" | "done" | "cancelled";
+  payment: { status: "none" | "pending" | "paid" | "expired"; url: string | null; sessionId: string | null };
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** The take_order tool's config: what can be ordered and for how much. */
+export type Menu = { currency: string; items: { name: string; priceCents: number }[] };
 
 export type LeadStatus = "new" | "qualified" | "won" | "lost";
 
@@ -238,6 +267,8 @@ export type AgentHours = {
   horizonDays: number;
   windows: HoursWindow[];
   unset: boolean;
+  /** How many bookings each time can take (tables, chairs). Missing means 1. */
+  perSlot?: number;
 };
 
 export type PhoneNumber = {
@@ -491,6 +522,7 @@ export type Database = {
   conversations: Conversation[];
   messages: Message[];
   slots: Slot[];
+  orders: Order[];
   leads: Lead[];
   tickets: Ticket[];
   transfers: Transfer[];

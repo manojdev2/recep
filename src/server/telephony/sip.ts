@@ -120,7 +120,8 @@ function follow(openaiCallId: string, callId: string, greeting: string, maxSecon
       try {
         args = JSON.parse(ev.arguments || "{}");
       } catch {}
-      const output = await relayTool(callId, ev.name, args);
+      const said = transcript.filter((t) => t.role === "user").map((t) => t.content);
+      const output = await relayTool(callId, ev.name, args, said);
       send({ type: "conversation.item.create", item: { type: "function_call_output", call_id: ev.call_id, output: JSON.stringify(output) } });
       send({ type: "response.create" });
     }

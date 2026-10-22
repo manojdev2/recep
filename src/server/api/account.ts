@@ -37,6 +37,7 @@ export const account = {
         slots: mine(d.slots),
         leads: mine(d.leads),
         tickets: mine(d.tickets),
+        orders: mine(d.orders),
         contacts: mine(d.contacts),
         knowledge: mine(d.knowledge),
         phoneNumbers: mine(d.phoneNumbers).map(({ secret: _s, ...n }) => n),
@@ -75,6 +76,7 @@ export const account = {
     d.slots = keep(d.slots);
     d.leads = keep(d.leads);
     d.tickets = keep(d.tickets);
+    d.orders = keep(d.orders);
     d.transfers = keep(d.transfers);
     d.contacts = keep(d.contacts);
     d.knowledge = keep(d.knowledge);

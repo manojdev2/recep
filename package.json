@@ -10,7 +10,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit -p .",
     "admin:grant": "node scripts/grant-admin.mjs",
-    "test:api": "node scripts/api-check.mjs"
+    "test:api": "node scripts/api-check.mjs",
+    "test:booking": "node scripts/booking-check.mjs",
+    "test:orders": "node scripts/order-check.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.2",

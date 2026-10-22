@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 
-const EVENTS = ["appointment.booked", "lead.created", "form.submitted", "call.completed"];
+const EVENTS = ["appointment.booked", "order.placed", "lead.created", "form.submitted", "call.completed"];
 
 export default function WebhooksPage() {
   const qc = useQueryClient();

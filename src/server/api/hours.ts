@@ -1,8 +1,8 @@
 import "server-only";
-import { defaultHours, suggestedWindows } from "../agent-defaults";
+import { defaultHours, suggestedSeats, suggestedWindows } from "../agent-defaults";
 import { db, save } from "../db";
 import { mutation, query, RpcError } from "../rpc";
-import { regenerateSlots } from "../slots";
+import { regenerateSlots, seatsPerTime } from "../slots";
 import type { HoursWindow } from "../types";
 
 function validZone(zone: string) {
@@ -45,6 +45,7 @@ export const hours = {
             timeZone: zone,
             slotMinutes: h.slotMinutes,
             horizonDays: h.horizonDays,
+            perSlot: seatsPerTime(h),
             windows: h.windows,
             unset: h.unset,
             openSlots: future.filter((s) => s.status === "open").length,
@@ -81,10 +82,10 @@ export const hours = {
   suggest: mutation((input: { agentId: string }, { user }) => {
     const agent = db().agents.find((a) => a.id === input.agentId && a.userId === user.id);
     if (!agent) throw new RpcError("This receptionist is gone.", 404);
-    return { windows: suggestedWindows(agent.templateKey), slotMinutes: agent.templateKey === "salon" ? 45 : 30 };
+    return { windows: suggestedWindows(agent.templateKey), slotMinutes: agent.templateKey === "salon" ? 45 : 30, perSlot: suggestedSeats(agent.templateKey) };
   }),
 
-  save: mutation((input: { agentId: string; windows: HoursWindow[]; slotMinutes: number; horizonDays: number }, { user }) => {
+  save: mutation((input: { agentId: string; windows: HoursWindow[]; slotMinutes: number; horizonDays: number; perSlot?: number }, { user }) => {
     const data = db();
     const agent = data.agents.find((a) => a.id === input.agentId && a.userId === user.id);
     if (!agent) throw new RpcError("This receptionist is gone.", 404);
@@ -97,6 +98,7 @@ export const hours = {
     h.windows = windows;
     h.slotMinutes = Math.min(480, Math.max(5, Math.round(input.slotMinutes) || 30));
     h.horizonDays = Math.min(120, Math.max(1, Math.round(input.horizonDays) || 14));
+    if (input.perSlot !== undefined) h.perSlot = seatsPerTime({ ...h, perSlot: Number(input.perSlot) || 1 });
     h.unset = windows.length === 0;
     save();
     return regenerateSlots(user.id, h);
