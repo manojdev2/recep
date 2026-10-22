@@ -141,7 +141,7 @@ export default function CampaignPage() {
         </div>
       </header>
       <PageBody className="p-4 sm:p-6">
-        <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
           {(
             [
               ["Waiting", c.pending],
@@ -257,13 +257,18 @@ export default function CampaignPage() {
               {addPeople.isPending ? "Adding…" : "Add to list"}
             </Button>
             {query.data.contacts.length ? (
-              <DataTable columns={["Number", "Name", "Status", "Last"]} colsClass="sm:grid-cols-[9rem_minmax(0,1fr)_7rem_minmax(0,1fr)]">
+              // Two columns: this table sits beside the settings, so four would not fit.
+              <DataTable columns={["Who", "Status"]} colsClass="sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 {query.data.contacts.map((t) => (
-                  <li className="grid items-center gap-3 px-4 py-3 sm:grid-cols-[9rem_minmax(0,1fr)_7rem_minmax(0,1fr)] sm:px-6" key={t.id}>
-                    <p className="font-mono text-sm tabular-nums">{t.e164}</p>
-                    <p className="truncate text-sm">{t.name || "—"}</p>
-                    <p className="text-sm text-muted">{t.status}</p>
-                    <p className="truncate text-xs text-subtle">{t.lastOutcome || `${t.attempts} tries`}</p>
+                  <li className="grid items-center gap-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:gap-3 sm:px-6" key={t.id}>
+                    <span className="min-w-0">
+                      <span className="block font-mono text-sm tabular-nums">{t.e164}</span>
+                      <span className="block truncate text-xs text-subtle">{t.name || "—"}</span>
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm text-muted">{t.status}</span>
+                      <span className="block truncate text-xs text-subtle">{t.lastOutcome || `${t.attempts} tries`}</span>
+                    </span>
                   </li>
                 ))}
               </DataTable>

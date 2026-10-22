@@ -104,7 +104,9 @@ export function DataTable({
         )}
       >
         {columns.map((column) => (
-          <span key={column}>{column}</span>
+          <span className="min-w-0 truncate" key={column}>
+            {column}
+          </span>
         ))}
       </div>
       <ul className="divide-y divide-border">{children}</ul>
