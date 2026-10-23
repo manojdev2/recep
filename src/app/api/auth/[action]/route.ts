@@ -14,6 +14,7 @@ import {
 } from "@/server/auth";
 import { claimAdmin, isListedAdmin } from "@/server/admin-claim";
 import { db, save } from "@/server/db";
+import { LEGACY_DEMO_EMAILS } from "@/server/seed";
 import { branding, DEMO_REFUSAL, isDemoMode, requestOrigin } from "@/server/settings";
 
 type Params = { params: Promise<{ action: string }> };
@@ -62,7 +63,10 @@ export async function POST(req: Request, { params }: Params) {
   const password = body.password ?? "";
 
   if (action === "sign-in") {
-    const user = db().users.find((u) => u.email.toLowerCase() === email);
+    // Databases seeded before the rename keep the demo accounts under their old addresses.
+    const legacy = LEGACY_DEMO_EMAILS[email];
+    const user =
+      db().users.find((u) => u.email.toLowerCase() === email) ?? (legacy ? db().users.find((u) => u.email.toLowerCase() === legacy) : undefined);
     if (!user || user.disabled || (isDemoAccount(user) && !demoAccountsOpen()) || !verifyPassword(password, user.passwordHash)) {
       return Response.json({ error: "That email and password do not match." }, { status: 401 });
     }

@@ -18,6 +18,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local, git-ignored folders: reference bundles and browser-tool output.
+    "_reference/**",
+    ".playwright-mcp/**",
   ]),
 ]);
 
