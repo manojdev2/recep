@@ -38,7 +38,7 @@ export default function WidgetLinePage() {
           <Mark className="mx-auto size-10" />
           <p className="mt-6 text-xl font-medium tracking-tight">This line isn’t public</p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            The agent is still in draft. If you built it, open it from the studio and set it live — then anyone with the link can talk.
+            The link may be wrong, or the agent is still in draft. If you built it, open it from the studio and set it live — then anyone with the link can talk.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <Button asChild>
